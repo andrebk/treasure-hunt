@@ -1,1 +1,5 @@
 *.class
+
+#IntelliJ files
+.idea/*
+treasure-hunt.iml
