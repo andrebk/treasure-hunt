@@ -10,7 +10,22 @@ import java.io.*;
 import java.net.*;
 
 public class Agent {
-
+	
+	Tile[][] map = new Tile[164][164];
+	int startingPoint = 80;
+	
+	
+	public void fillTable(char view[][], int[] position){
+		int posx = position[0];
+		int posy = position[1];
+		for(int i = 0; i<5; i++){
+			for(int j=0; j<5; j++){
+				this.map[posx-2+j][posy-2+i] = view[j][i]; 
+			}
+		}
+	}
+	
+	
     public char get_action(char view[][]) {
 
         // REPLACE THIS CODE WITH AI TO CHOOSE ACTION
