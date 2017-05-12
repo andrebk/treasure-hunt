@@ -11,16 +11,19 @@ import java.net.*;
 
 public class Agent {
 	
-	Tile[][] map = new Tile[164][164];
-	int startingPoint = 80;
+	private Tile[][] map = new Tile[164][164];
+	private int startingPoint = 80;
 	
 	
-	public void fillTable(char view[][], int[] position){
+	private void fillTable(char view[][], int[] position){
 		int posx = position[0];
 		int posy = position[1];
 		for(int i = 0; i<5; i++){
 			for(int j=0; j<5; j++){
-				this.map[posx-2+j][posy-2+i] = view[j][i]; 
+			    int tileX = posx-2+j;
+			    int tileY = posy-2+i;
+			    Tile newTile = new Tile(view[j][i], view[j][i], tileX, tileY);
+				this.map[tileX][tileY] = newTile;
 			}
 		}
 	}

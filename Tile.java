@@ -24,6 +24,12 @@ public class Tile {
         type = Character.toLowerCase(type);
         switch (type){
             case ' ':
+            case 'a':
+            case 'k':
+            case 'd':
+            case '$':
+                this.type = ' ';
+                break;
             case '*':
             case '~':
             case 'T':
@@ -66,7 +72,7 @@ public class Tile {
     public int getY() {
         return this.y;
     }
-    
+
 
 }
 
