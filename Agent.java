@@ -5,7 +5,6 @@
  *  UNSW Session 1, 2017
  */
 
-import java.util.*;
 import java.io.*;
 import java.net.*;
 
@@ -15,6 +14,13 @@ public class Agent {
     private int start = 82;
     private int x = start;
     private int y = start;
+
+    private int dynamites = 0;
+    private boolean hasDynamite = false;
+    private boolean hasAxe = false;
+    private boolean hasKey = false;
+    private boolean hasRaft = false;
+    private boolean hasTreasure = false;
 
     private final static int EAST = 0;
     private final static int NORTH = 1;
@@ -118,7 +124,6 @@ public class Agent {
         System.out.println();
     }
 
-
     private char getHumanAction() throws IOException{
         int ch = 0;
         System.out.print("Enter Action(s): ");
@@ -147,6 +152,7 @@ public class Agent {
         int deltaY = 0;
         int nextX, nextY;
         Tile nextTile;
+        Tile currentTile = map[y][x];
 
         switch (direction) {
             case EAST:
@@ -175,11 +181,34 @@ public class Agent {
                     case '*':
                     case '-':
                     case 'T':
-                        // Do not update position
+                        // Obstacle in the way, do not update position
+                        break;
+                    case ' ':
+                        // Lose the raft when moving from water to land
+                        if (currentTile.getType() ==  '~' && hasRaft) {
+                            hasRaft = false;
+                        }
+                        x = nextX;
+                        y = nextY;
                         break;
                     default:
                         x = nextX;
                         y = nextY;
+                        break;
+                }
+                switch (nextTile.getItem()) {
+                    case 'a':
+                        hasAxe = true;
+                        break;
+                    case 'd':
+                        hasDynamite = true;
+                        dynamites++;
+                        break;
+                    case 'k':
+                        hasKey = true;
+                        break;
+                    case '$':
+                        hasTreasure = true;
                         break;
                 }
                 break;
@@ -190,8 +219,20 @@ public class Agent {
                 direction = (direction + 3) % 4;
                 break;
             case 'c':
+                if (nextTile.getType() == 't' && hasAxe) {
+                    hasRaft = true;
+                }
+                break;
             case 'u':
+                break;
             case 'b':
+                if (hasDynamite) {
+                    dynamites--;
+                    if (dynamites <= 0) {
+                        hasDynamite = false;
+                    }
+                }
+                break;
         }
     }
 
