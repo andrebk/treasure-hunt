@@ -32,12 +32,9 @@ public class Agent {
 
     private void updateMap(char view[][]) {
         int row, col;
+        Tile newTile;
         for (int i = 0; i < 5; i++) {
             for (int j = 0; j < 5; j++) {
-                if (i == 2 && j == 2) {
-                    // Players position. Skip so player icon is not stored in map.
-                    continue;
-                }
 
                 // Transform coordinates to rotate view position to correct map position
                 switch (direction) {
@@ -64,11 +61,15 @@ public class Agent {
                 int tileY = y - 2 + row;
                 int tileX = x - 2 + col;
 
-                if (map[tileY][tileX] == null) {
-                    Tile newTile = new Tile(view[i][j], view[i][j], tileX, tileY);
+                if (i == 2 && j == 2 && map[tileY][tileX] == null) {
+                    // If players position has not been set before, the player must be on the start tile
+                    // so set that tile to a "land" tile
+                    newTile = new Tile(' ', ' ', tileX, tileY);
                     map[tileY][tileX] = newTile;
-                }
-                else {
+                } else if (map[tileY][tileX] == null) {
+                    newTile = new Tile(view[i][j], view[i][j], tileX, tileY);
+                    map[tileY][tileX] = newTile;
+                } else {
                     map[tileY][tileX].setType(view[i][j]);
                     map[tileY][tileX].setItem(view[i][j]);
                 }
@@ -76,21 +77,21 @@ public class Agent {
         }
     }
 
-    private void printMap(){
+    private void printMap() {
         char ch = ' ';
         char[] line = new char[164];
         System.out.println();
         boolean printLine;
+        Tile currentTile;
 
         for (int y = 0; y < 164; y++) {
             printLine = false;
 
             for (int x = 0; x < 164; x++) {
-
+                currentTile = map[y][x];
                 if (map[y][x] == null) {
                     ch = '?';
-                }
-                else if(x == this.x && y == this.y) {
+                } else if (x == this.x && y == this.y) {
                     // If at player position, print player icon in correct orientation
                     switch (direction) {
                         case NORTH:
@@ -107,9 +108,11 @@ public class Agent {
                             break;
                     }
                     printLine = true;
-                }
-                else {
-                    ch = map[y][x].getType();
+                } else {
+                    ch = currentTile.getType();
+                    if (currentTile.getItem() != '0') {
+                        ch = currentTile.getItem();
+                    }
                     printLine = true;
                 }
 
@@ -124,7 +127,7 @@ public class Agent {
         System.out.println();
     }
 
-    private char getHumanAction() throws IOException{
+    private char getHumanAction() throws IOException {
         int ch = 0;
         System.out.print("Enter Action(s): ");
 
@@ -185,7 +188,7 @@ public class Agent {
                         break;
                     case ' ':
                         // Lose the raft when moving from water to land
-                        if (currentTile.getType() ==  '~' && hasRaft) {
+                        if (currentTile.getType() == '~' && hasRaft) {
                             hasRaft = false;
                         }
                         x = nextX;
