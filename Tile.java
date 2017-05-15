@@ -6,7 +6,7 @@ public class Tile {
     private int x, y;
 
     Tile(){
-        this(' ', '0', 0, 0);
+        this('.', '0', 0, 0);
     }
 
     Tile (char type, char item, int x, int y) {
@@ -22,6 +22,8 @@ public class Tile {
 
     public void setType(char type) throws InvalidTypeException {
         type = Character.toLowerCase(type);
+        //TODO: Do we need an "unknown"/unexplored type as well? To decide if the tile should be explored?
+        // If unexplored type is implemented, make that the default in the constructor.
         switch (type){
             case ' ':
             case 'a':
@@ -32,7 +34,7 @@ public class Tile {
                 break;
             case '*':
             case '~':
-            case 'T':
+            case 't':
             case '-':
             case '.':
                 this.type = type;
@@ -72,7 +74,6 @@ public class Tile {
     public int getY() {
         return this.y;
     }
-
 
 }
 
