@@ -3,17 +3,18 @@
 public class Tile {
     private char type;
     private char item = '0';
-    private int x, y;
+    private int x = -1;
+    private int y = -1;
 
-    Tile(){
+    Tile() {
         this('.', '0', 0, 0);
     }
 
-    Tile (char type, char item, int x, int y) {
-        this.setType(type);
-        this.setItem(item);
+    Tile(char type, char item, int x, int y) {
         this.x = x;
         this.y = y;
+        this.setType(type);
+        this.setItem(item);
     }
 
     public char getType() {
@@ -24,7 +25,7 @@ public class Tile {
         type = Character.toLowerCase(type);
         //TODO: Do we need an "unknown"/unexplored type as well? To decide if the tile should be explored?
         // If unexplored type is implemented, make that the default in the constructor.
-        switch (type){
+        switch (type) {
             case ' ':
             case 'a':
             case 'k':
@@ -40,7 +41,7 @@ public class Tile {
                 this.type = type;
                 break;
             default:
-                throw new InvalidTypeException("Character '" + type + "' is not a valid tile type");
+                throw new InvalidTypeException("Error setting type for tile at x: " + x + " y: " + y + ". Character '" + type + "' is not a valid tile type");
         }
     }
 
@@ -50,7 +51,7 @@ public class Tile {
 
     public void setItem(char item) {
         item = Character.toLowerCase(item);
-        switch(item) {
+        switch (item) {
             case 'a':
             case 'k':
             case 'd':
@@ -82,7 +83,7 @@ class InvalidTypeException extends RuntimeException {
         super();
     }
 
-    InvalidTypeException (String message) {
+    InvalidTypeException(String message) {
         super(message);
     }
 }
