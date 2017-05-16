@@ -36,7 +36,7 @@ public class Agent {
         for (int i = 0; i < 5; i++) {
             for (int j = 0; j < 5; j++) {
 
-                // Transform coordinates to rotate view position to correct map position
+                // Transform coordinates to rotate view orientation to correct map orientation
                 switch (direction) {
                     case NORTH:
                         row = i;
@@ -61,11 +61,13 @@ public class Agent {
                 int tileY = y - 2 + row;
                 int tileX = x - 2 + col;
 
-                if (i == 2 && j == 2 && map[tileY][tileX] == null) {
+                if (i == 2 && j == 2) {
                     // If players position has not been set before, the player must be on the start tile
                     // so set that tile to a "land" tile
-                    newTile = new Tile(' ', ' ', tileX, tileY);
-                    map[tileY][tileX] = newTile;
+                    if (map[tileY][tileX] == null) {
+                        newTile = new Tile(' ', ' ', tileX, tileY);
+                        map[tileY][tileX] = newTile;
+                    }
                 } else if (map[tileY][tileX] == null) {
                     newTile = new Tile(view[i][j], view[i][j], tileX, tileY);
                     map[tileY][tileX] = newTile;
@@ -108,6 +110,9 @@ public class Agent {
                             break;
                     }
                     printLine = true;
+                } else if (x == start && y == start) {
+                    // Indicate starting position when printing the map
+                    ch = 'S';
                 } else {
                     ch = currentTile.getType();
                     if (currentTile.getItem() != '0') {
@@ -125,6 +130,10 @@ public class Agent {
             }
         }
         System.out.println();
+    }
+
+    private void printState() {
+        System.out.println("Raft: " + hasRaft + "  Axe: " + hasAxe + "  Key: " + hasKey + "  Dynamite: " + dynamites + "  Treasure: " + hasTreasure);
     }
 
     private char getHumanAction() throws IOException {
@@ -245,10 +254,10 @@ public class Agent {
 
         updateMap(view);
         printMap();
+        printState();
 
         try {
             char ch = getHumanAction();
-
             updateState(ch);
 
             return ch;
