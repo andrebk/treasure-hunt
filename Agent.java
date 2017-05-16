@@ -91,7 +91,9 @@ public class Agent {
 
             for (int x = 0; x < 164; x++) {
                 currentTile = map[y][x];
+
                 if (map[y][x] == null) {
+                    // This tile has not yet been seen by the agent
                     ch = '?';
                 } else if (x == this.x && y == this.y) {
                     // If at player position, print player icon in correct orientation
@@ -113,7 +115,9 @@ public class Agent {
                 } else if (x == start && y == start) {
                     // Indicate starting position when printing the map
                     ch = 'S';
+                    printLine = true;
                 } else {
+                    // Print the tile type. If there is an item there, print it instead.
                     ch = currentTile.getType();
                     if (currentTile.getItem() != '0') {
                         ch = currentTile.getItem();
@@ -129,7 +133,8 @@ public class Agent {
                 System.out.println(line);
             }
         }
-        System.out.println();
+        System.out.format("    x:  %-10d%-10d%-10d%-10d%-10d%-10d%-10d%-10d%-10d%-10d%-10d%-10d%-10d%-10d%-10d%-10d%-10d%n%n",
+                0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160);
     }
 
     private void printState() {
