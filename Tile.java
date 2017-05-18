@@ -5,6 +5,7 @@ public class Tile {
     private char item = '0';
     private int x = -1;
     private int y = -1;
+    private boolean seen = false;
 
     Tile() {
         this('.', '0', 0, 0);
@@ -43,6 +44,14 @@ public class Tile {
             default:
                 throw new InvalidTypeException("Error setting type for tile at x: " + x + " y: " + y + ". Character '" + type + "' is not a valid tile type");
         }
+    }
+    
+    public boolean getSeen(){
+    	return this.seen;
+    }
+    
+    public void setSeen(){
+    	this.seen = true;
     }
 
     public char getItem() {

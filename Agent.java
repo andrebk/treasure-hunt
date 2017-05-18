@@ -163,6 +163,11 @@ public class Agent {
         }
         throw new RuntimeException("Error occurred when getting player input");
     }
+    
+    public Tile getTile(int x, int y){
+		Tile tile = map[y][x];
+		return tile;
+    }
 
     private void updateState(char ch) {
         int deltaX = 0;
