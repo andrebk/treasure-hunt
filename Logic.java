@@ -15,22 +15,30 @@ public class Logic {
 			// Check WEST tile
 			if(agent.getTile(x-1, y).getSeen() == false){
 				agent.getTile(x-1, y).setSeen();
-				queue.add(agent.getTile(x-1, y));
+				if(agent.getTile(x-1, y).getType() == ' '){
+					queue.add(agent.getTile(x-1, y));	
+				}
 			}
 			// Check EAST tile
 			else if(agent.getTile(x+1, y).getSeen() == false){
 				agent.getTile(x+1, y).setSeen();
-				queue.add(agent.getTile(x+1, y));
+				if(agent.getTile(x+1, y).getType() == ' '){
+					queue.add(agent.getTile(x+1, y));					
+				}
 			}
 			// Check NORTH tile
 			else if(agent.getTile(x, y+1).getSeen() == false){
 				agent.getTile(x, y+1).setSeen();
-				queue.add(agent.getTile(x, y+1));
+				if(agent.getTile(x, y+1).getType() == ' '){
+					queue.add(agent.getTile(x, y+1));					
+				}
 			}
 			// Check SOUTH tile
 			else if(agent.getTile(x, y-1).getSeen() == false){
 				agent.getTile(x, y-1).setSeen();
-				queue.add(agent.getTile(x, y-1));
+				if(agent.getTile(x, y-1).getType() == ' '){
+					queue.add(agent.getTile(x, y-1));					
+				}
 			}
 		}
 		return;
