@@ -22,10 +22,10 @@ public class Agent {
     private boolean hasRaft = false;
     private boolean hasTreasure = false;
 
-    private final static int EAST = 0;
-    private final static int NORTH = 1;
-    private final static int WEST = 2;
-    private final static int SOUTH = 3;
+    public final static int EAST = 0;
+    public final static int NORTH = 1;
+    public final static int WEST = 2;
+    public final static int SOUTH = 3;
 
     private int direction = NORTH;
 
