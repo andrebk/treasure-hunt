@@ -94,7 +94,7 @@ public class Agent {
             for (int x = 0; x < 164; x++) {
                 currentTile = map[y][x];
 
-                if (map[y][x] == null) {
+                if (currentTile == null) {
                     // This tile has not yet been seen by the agent
                     ch = '?';
                 } else if (x == this.x && y == this.y) {
@@ -174,10 +174,23 @@ public class Agent {
     		return false;
     	}
     }
-    
-    public Tile getTile(int x, int y){
-		Tile tile = map[y][x];
-		return tile;
+
+    public Tile getTile(int x, int y) {
+        Tile tile = map[y][x];
+        return tile;
+    }
+
+    private int numUnseenTiles(int x, int y) {
+        int unSeen = 0;
+        int i, j;
+        for (i = -2; i <= 2; i++) {
+            for (j = -2; j <= 2; j++) {
+                if (map[y + i][x + j] == null) {
+                    unSeen++;
+                }
+            }
+        }
+        return unSeen;
     }
     
     public Tile getPos(){
@@ -263,6 +276,7 @@ public class Agent {
             case 'u':
                 break;
             case 'b':
+                //TODO: Only use a dynamite if nextTile can be blown up?
                 if (hasDynamite) {
                     dynamites--;
                     if (dynamites <= 0) {
