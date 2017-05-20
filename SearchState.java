@@ -1,18 +1,7 @@
 import java.util.PriorityQueue;
 
-public class SearchState {
-    private Tile[][] map;
-    private int posX, posY;
+public class SearchState extends State {
     private int targetX, targetY;
-
-    private int dynamites = 0;
-    private boolean hasDynamite = false;
-    private boolean hasAxe = false;
-    private boolean hasKey = false;
-    private boolean hasRaft = false;
-    private boolean hasTreasure = false;
-
-    private int direction = Agent.NORTH;
 
     private char[] prevActions;
     //TODO: Store previous states as well? Check for repetion
