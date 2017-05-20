@@ -1,47 +1,110 @@
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.Queue;
 
 public class Logic {
 	
-	public void exploreMap(Agent agent){
-		Tile start = agent.getTile(82, 82);
+	
+		public boolean validExploreMove(Agent agent,Tile step){
+			if(step.getType() == ' '){
+					return true;
+			}
+			else if(step.getType() == '~'){
+				if(agent.hasRaft()){
+					return true;
+				}
+			}
+			return false;
+		}
+	
+		public ArrayList<Tile> exploreMap(Agent agent){
+			
 		Queue<Tile> queue = new LinkedList<Tile>();
-		start.setSeen();
+		Map<Tile,Tile> set = new HashMap<Tile,Tile>();
+		Tile start = agent.getPos();
+		
 		queue.add(start);
+		set.put(start, null);
+		
+		
 		while(queue != null){
-			Tile n = queue.poll();
-			int x = n.getX();
-			int y = n.getY();
-			// Check WEST tile
-			if(agent.getTile(x-1, y).getSeen() == false){
-				agent.getTile(x-1, y).setSeen();
-				if(agent.getTile(x-1, y).getType() == ' '){
-					queue.add(agent.getTile(x-1, y));	
-				}
+			Tile current = queue.poll();
+			int x = current.getX();
+			int y = current.getY();
+			
+			// Explore NOTH
+			if(set.containsKey(agent.getTile(x, y+1)) == false && validExploreMove(agent, agent.getTile(x, y+1))){
+				set.put(agent.getTile(x, y+1), current);
+				queue.add(agent.getTile(x, y+1));
+				for(int i=0; i<5; i++){
+					if(agent.getTile(x-2+i, y+3) == null){
+						Tile step = agent.getTile(x, y+1);
+						ArrayList<Tile> path = new ArrayList<Tile>();
+						path.add(step);
+						while(step != agent.getPos()){
+							step = set.get(agent.getTile(x, y+1));
+							path.add(step);
+						}
+						return path;
+					}
+				}				
 			}
-			// Check EAST tile
-			else if(agent.getTile(x+1, y).getSeen() == false){
-				agent.getTile(x+1, y).setSeen();
-				if(agent.getTile(x+1, y).getType() == ' '){
-					queue.add(agent.getTile(x+1, y));					
-				}
+			
+			// Explore EAST
+			if(set.containsKey(agent.getTile(x+1, y)) == false && validExploreMove(agent, agent.getTile(x+1, y))){
+				set.put(agent.getTile(x+1, y), current);
+				queue.add(agent.getTile(x+1, y));
+				for(int i=0; i<5; i++){
+					if(agent.getTile(x+3, y-2+i) == null){
+						Tile step = agent.getTile(x+1, y);
+						ArrayList<Tile> path = new ArrayList<Tile>();
+						path.add(step);
+						while(step != agent.getPos()){
+							step = set.get(agent.getTile(x+1, y));
+							path.add(step);
+						}
+						return path;
+					}
+				}				
 			}
-			// Check NORTH tile
-			else if(agent.getTile(x, y+1).getSeen() == false){
-				agent.getTile(x, y+1).setSeen();
-				if(agent.getTile(x, y+1).getType() == ' '){
-					queue.add(agent.getTile(x, y+1));					
-				}
+			// Explore SOUTH
+			if(set.containsKey(agent.getTile(x, y-1)) == false && validExploreMove(agent, agent.getTile(x, y-1))){
+				set.put(agent.getTile(x, y-1), current);
+				queue.add(agent.getTile(x, y-1));
+				for(int i=0; i<5; i++){
+					if(agent.getTile(x-2+i, y-3) == null){
+						Tile step = agent.getTile(x, y-1);
+						ArrayList<Tile> path = new ArrayList<Tile>();
+						path.add(step);
+						while(step != agent.getPos()){
+							step = set.get(agent.getTile(x, y-1));
+							path.add(step);
+						}
+						return path;
+					}
+				}				
 			}
-			// Check SOUTH tile
-			else if(agent.getTile(x, y-1).getSeen() == false){
-				agent.getTile(x, y-1).setSeen();
-				if(agent.getTile(x, y-1).getType() == ' '){
-					queue.add(agent.getTile(x, y-1));					
-				}
+			
+			// Explore WEST
+			if(set.containsKey(agent.getTile(x-1, y)) == false && validExploreMove(agent, agent.getTile(x-1, y))){
+				set.put(agent.getTile(x-1, y), current);
+				queue.add(agent.getTile(x-1, y));
+				for(int i=0; i<5; i++){
+					if(agent.getTile(x-1, y-2+i) == null){
+						Tile step = agent.getTile(x, y+1);
+						ArrayList<Tile> path = new ArrayList<Tile>();
+						path.add(step);
+						while(step != agent.getPos()){
+							step = set.get(agent.getTile(x-1, y));
+							path.add(step);
+						}
+						return path;
+					}
+				}				
 			}
 		}
-		return;
-	}
-
+		return null;
+		}
 }

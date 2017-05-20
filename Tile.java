@@ -5,7 +5,7 @@ public class Tile {
     private char item = '0';
     private int x = -1;
     private int y = -1;
-    private boolean seen = false;
+    private boolean visited = false;
 
     Tile() {
         this('.', '0', 0, 0);
@@ -46,12 +46,12 @@ public class Tile {
         }
     }
     
-    public boolean getSeen(){
-    	return this.seen;
+    public boolean getVisited(){
+    	return this.visited;
     }
     
-    public void setSeen(){
-    	this.seen = true;
+    public void setVisited(){
+    	this.visited = true;
     }
 
     public char getItem() {

@@ -7,6 +7,8 @@
 
 import java.io.*;
 import java.net.*;
+import java.util.LinkedList;
+import java.util.Queue;
 
 public class Agent {
 
@@ -78,7 +80,7 @@ public class Agent {
             }
         }
     }
-
+    
     private void printMap() {
         char ch = ' ';
         char[] line = new char[164];
@@ -164,9 +166,22 @@ public class Agent {
         throw new RuntimeException("Error occurred when getting player input");
     }
     
+    public boolean hasRaft(){
+    	if(this.hasRaft){
+    		return true;
+    	}
+    	else{
+    		return false;
+    	}
+    }
+    
     public Tile getTile(int x, int y){
 		Tile tile = map[y][x];
 		return tile;
+    }
+    
+    public Tile getPos(){
+    	return map[this.y][this.x];
     }
 
     private void updateState(char ch) {
