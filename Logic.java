@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
@@ -8,17 +9,28 @@ public class Logic {
 	
 	
 		public boolean validExploreMove(Agent agent,Tile step){
-			if(step.getType() == ' '){
+			if(agent.getPos().getType() == ' '){
+				if(step.getType() == ' '){
 					return true;
+					}
+				if(step.getType() == '~'){
+					if(agent.hasRaft()){
+						return true;
+					}
+				}
 			}
-			else if(step.getType() == '~'){
-				if(agent.hasRaft()){
+			
+			else if(agent.getPos().getType() == '~'){
+				if(step.getType() == ' '){
+					return true;
+				}
+				if(step.getType() == '~'){
 					return true;
 				}
 			}
 			return false;
 		}
-	
+		
 		public ArrayList<Tile> exploreMap(Agent agent){
 			
 		Queue<Tile> queue = new LinkedList<Tile>();
@@ -47,6 +59,7 @@ public class Logic {
 							step = set.get(agent.getTile(x, y+1));
 							path.add(step);
 						}
+						Collections.reverse(path);
 						return path;
 					}
 				}				
@@ -65,6 +78,7 @@ public class Logic {
 							step = set.get(agent.getTile(x+1, y));
 							path.add(step);
 						}
+						Collections.reverse(path);
 						return path;
 					}
 				}				
@@ -82,6 +96,7 @@ public class Logic {
 							step = set.get(agent.getTile(x, y-1));
 							path.add(step);
 						}
+						Collections.reverse(path);
 						return path;
 					}
 				}				
@@ -100,6 +115,7 @@ public class Logic {
 							step = set.get(agent.getTile(x-1, y));
 							path.add(step);
 						}
+						Collections.reverse(path);
 						return path;
 					}
 				}				
