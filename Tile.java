@@ -45,13 +45,13 @@ public class Tile {
                 throw new InvalidTypeException("Error setting type for tile at x: " + x + " y: " + y + ". Character '" + type + "' is not a valid tile type");
         }
     }
-    
-    public boolean getSeen(){
-    	return this.seen;
+
+    public boolean getSeen() {
+        return this.seen;
     }
-    
-    public void setSeen(){
-    	this.seen = true;
+
+    public void setSeen() {
+        this.seen = true;
     }
 
     public char getItem() {

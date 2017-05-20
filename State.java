@@ -23,7 +23,7 @@ public class State {
         return map[y][x];
     }
 
-    protected void setTile (int x, int y, Tile newTile) {
+    protected void setTile(int x, int y, Tile newTile) {
         map[y][x] = newTile;
     }
 

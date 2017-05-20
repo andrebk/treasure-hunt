@@ -40,8 +40,6 @@ public class Agent extends State {
     }
 
 
-
-
     public char get_action(char view[][]) {
 
         // REPLACE THIS CODE WITH AI TO CHOOSE ACTION
