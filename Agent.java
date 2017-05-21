@@ -39,7 +39,6 @@ public class Agent extends State {
         throw new RuntimeException("Error occurred when getting player input");
     }
 
-
     public char get_action(char view[][]) {
 
         // REPLACE THIS CODE WITH AI TO CHOOSE ACTION

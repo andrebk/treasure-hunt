@@ -1,7 +1,7 @@
 
 public class State {
     protected Tile[][] map = new Tile[164][164];
-    protected int start = 82;
+    protected final static int start = 82;
     protected int posX, posY;
 
     protected int dynamites = 0;
@@ -23,8 +23,15 @@ public class State {
         return map[y][x];
     }
 
-    protected void setTile(int x, int y, Tile newTile) {
-        map[y][x] = newTile;
+    protected void setTile(char type, char item, int x, int y) {
+        if (map[y][x] == null) {
+            // Tile doesn't exist, because it hasn't been seen before. Create it
+            map[y][x] = new Tile(type, item, x, y);
+        } else {
+            // Update existing tile
+            map[y][x].setItem(item);
+            map[y][x].setType(type);
+        }
     }
 
     protected int numUnseenTiles(int x, int y) {
@@ -41,8 +48,9 @@ public class State {
     }
 
     protected void updateMap(char view[][]) {
-        int row, col;
-        Tile newTile;
+        int row, col, tileX, tileY;
+        char tileView;
+
         for (int i = 0; i < 5; i++) {
             for (int j = 0; j < 5; j++) {
 
@@ -68,22 +76,19 @@ public class State {
                         throw new RuntimeException("Invalid direction");
                 }
 
-                int tileY = posY - 2 + row;
-                int tileX = posX - 2 + col;
+                tileY = posY - 2 + row;
+                tileX = posX - 2 + col;
+                tileView = view[i][j];
 
                 if (i == 2 && j == 2) {
                     // If players position has not been set before, the player must be on the start tile
-                    // so set that tile to a "land" tile
+                    // so set that tile to a "land" tile. Otherwise do nothing, as the view does not contain
+                    // the players position
                     if (getTile(tileX, tileY) == null) {
-                        newTile = new Tile(' ', ' ', tileX, tileY);
-                        setTile(tileX, tileY, newTile);
+                        setTile(' ', ' ', tileX, tileY);
                     }
-                } else if (getTile(tileX, tileY) == null) {
-                    newTile = new Tile(view[i][j], view[i][j], tileX, tileY);
-                    setTile(tileX, tileY, newTile);
                 } else {
-                    getTile(tileX, tileY).setType(view[i][j]);
-                    getTile(tileX, tileY).setItem(view[i][j]);
+                    setTile(tileView, tileView, tileX, tileY);
                 }
             }
         }
