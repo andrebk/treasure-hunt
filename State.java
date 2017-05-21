@@ -1,7 +1,9 @@
 
 public class State {
-    protected Tile[][] map = new Tile[164][164];
-    protected final static int start = 82;
+    private final static int mapSize = 164;
+    protected final static int start = mapSize / 2;
+    protected Tile[][] map = new Tile[mapSize][mapSize];
+
     protected int posX, posY;
 
     protected int dynamites = 0;
@@ -32,6 +34,32 @@ public class State {
             map[y][x].setItem(item);
             map[y][x].setType(type);
         }
+    }
+
+    public Position getNextPos() {
+        int deltaX = 0;
+        int deltaY = 0;
+        int nextX, nextY;
+
+        switch (direction) {
+            case EAST:
+                deltaX = 1;
+                break;
+            case WEST:
+                deltaX = -1;
+                break;
+            case NORTH:
+                deltaY = -1;
+                break;
+            case SOUTH:
+                deltaY = 1;
+                break;
+        }
+
+        // Find the tile in front of the player
+        nextX = posX + deltaX;
+        nextY = posY + deltaY;
+        return new Position(nextX, nextY);
     }
 
     protected int numUnseenTiles(int x, int y) {
@@ -95,31 +123,12 @@ public class State {
     }
 
     protected void updateState(char action) {
-        int deltaX = 0;
-        int deltaY = 0;
-        int nextX, nextY;
-        Tile nextTile;
         Tile currentTile = getTile(posX, posY);
+        Position nextPos = getNextPos();
 
-        switch (direction) {
-            case EAST:
-                deltaX = 1;
-                break;
-            case WEST:
-                deltaX = -1;
-                break;
-            case NORTH:
-                deltaY = -1;
-                break;
-            case SOUTH:
-                deltaY = 1;
-                break;
-        }
-
-        // Find the tile in front of the player
-        nextX = posX + deltaX;
-        nextY = posY + deltaY;
-        nextTile = getTile(nextX, nextY);
+        int nextX = nextPos.getX();
+        int nextY = nextPos.getY();
+        Tile nextTile = getTile(nextX, nextY);
 
         // Update agents world state
         switch (action) {
@@ -168,16 +177,26 @@ public class State {
             case 'c':
                 if (nextTile.getType() == 't' && hasAxe) {
                     hasRaft = true;
+                    nextTile.setType(' ');
                 }
                 break;
             case 'u':
+                if (nextTile.getType() == '-' && hasKey) {
+                    nextTile.setType(' ');
+                }
                 break;
             case 'b':
-                //TODO: Only use a dynamite if nextTile can be blown up?
                 if (hasDynamite) {
-                    dynamites--;
-                    if (dynamites <= 0) {
-                        hasDynamite = false;
+                    switch (nextTile.getType()) {
+                        case '*':
+                        case '-':
+                        case 't':
+                            dynamites--;
+                            if (dynamites <= 0) {
+                                hasDynamite = false;
+                            }
+                            nextTile.setType(' ');
+                            break;
                     }
                 }
                 break;
@@ -244,5 +263,53 @@ public class State {
 
     protected void printState() {
         System.out.println("Raft: " + hasRaft + "  Axe: " + hasAxe + "  Key: " + hasKey + "  Dynamite: " + dynamites + "  Treasure: " + hasTreasure);
+    }
+
+    protected boolean sameState(State state) {
+        return this.posX == state.posX &&
+                this.posY == state.posY &&
+                this.dynamites == state.dynamites &&
+                this.hasDynamite == state.hasDynamite &&
+                this.hasAxe == state.hasAxe &&
+                this.hasKey == state.hasKey &&
+                this.hasRaft == state.hasRaft &&
+                this.hasTreasure == state.hasTreasure &&
+                this.direction == state.direction;
+    }
+
+    protected Tile[][] deepCopyMap() {
+        Tile[][] newMap = new Tile[mapSize][mapSize];
+        Tile currentTile;
+
+        for (int i = 0; i < mapSize; i++) {
+            for (int j = 0; j < mapSize; j++) {
+
+                currentTile = map[i][j];
+                if (currentTile == null) {
+                    newMap[i][j] = null;
+                } else {
+                    newMap[i][j] = new Tile(map[i][j].getType(), map[i][j].getItem(), map[i][j].getX(), map[i][j].getY());
+                }
+
+            }
+        }
+        return newMap;
+    }
+}
+
+class Position {
+    private int x, y;
+
+    Position(int x, int y) {
+        this.x = x;
+        this.y = y;
+    }
+
+    public int getX() {
+        return this.x;
+    }
+
+    public int getY() {
+        return this.y;
     }
 }

@@ -7,8 +7,12 @@
 
 import java.io.*;
 import java.net.*;
+import java.util.LinkedList;
 
 public class Agent extends State {
+
+    LinkedList<Tile> itemTiles;
+    LinkedList<Character> plan;
 
     Agent() {
         super();
@@ -46,6 +50,15 @@ public class Agent extends State {
         updateMap(view);
         printMap();
         printState();
+
+        System.out.println("Starting pathfinding...");
+        long startTime = System.nanoTime();
+        plan = AStarSearch.findPath(this, getTile(posX, posY), getTile(80, 80));
+        long stopTime = System.nanoTime();
+        long duration = (stopTime - startTime) / 1000000;
+
+        System.out.println("Found path in " + duration + " milliseconds");
+        System.out.println("Path is: " + plan.toString());
 
         try {
             char ch = getHumanAction();
