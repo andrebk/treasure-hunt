@@ -18,6 +18,10 @@ public class Tile {
         this.setItem(item);
     }
 
+    Tile(Tile tile) {
+        this(tile.getType(), tile.getItem(), tile.getX(), tile.getY());
+    }
+
     public char getType() {
         return type;
     }
@@ -45,13 +49,13 @@ public class Tile {
                 throw new InvalidTypeException("Error setting type for tile at x: " + x + " y: " + y + ". Character '" + type + "' is not a valid tile type");
         }
     }
-    
-    public boolean getVisited(){
-    	return this.visited;
+
+    public boolean getVisited() {
+        return this.visited;
     }
-    
-    public void setVisited(){
-    	this.visited = true;
+
+    public void setVisited() {
+        this.visited = true;
     }
 
     public char getItem() {
@@ -90,6 +94,10 @@ public class Tile {
                 this.item == tile.item &&
                 this.x == tile.x &&
                 this.y == tile.y;
+    }
+
+    public String toString() {
+        return "Tile: x: " + x + "  y: " + y + "  type: '" + type + "'  item: " + item;
     }
 
 }
