@@ -1,8 +1,13 @@
+import java.util.LinkedList;
+import java.util.ListIterator;
 
 public class State {
     private final static int mapSize = 164;
     protected final static int start = mapSize / 2;
     protected Tile[][] map = new Tile[mapSize][mapSize];
+
+    LinkedList<Tile> knownTreasures = new LinkedList<>();
+    LinkedList<Tile> knownItems = new LinkedList<>();
 
     protected int posX, posY;
 
@@ -62,7 +67,7 @@ public class State {
         return new Position(nextX, nextY);
     }
 
-    public boolean hasRaft(){
+    public boolean hasRaft() {
         return this.hasRaft;
     }
 
@@ -125,6 +130,14 @@ public class State {
                     }
                 } else {
                     setTile(tileView, tileView, tileX, tileY);
+                    switch (tileView) {
+                        case 'a':
+                        case 'k':
+                        case 'd':
+                        case '$':
+                            discoverObject(getTile(tileX, tileY));
+                            break;
+                    }
                 }
             }
         }
@@ -163,16 +176,20 @@ public class State {
                 switch (nextTile.getItem()) {
                     case 'a':
                         hasAxe = true;
+                        pickupObject(nextTile);
                         break;
                     case 'd':
                         hasDynamite = true;
                         dynamites++;
+                        pickupObject(nextTile);
                         break;
                     case 'k':
                         hasKey = true;
+                        pickupObject(nextTile);
                         break;
                     case '$':
                         hasTreasure = true;
+                        pickupObject(nextTile);
                         break;
                 }
                 break;
@@ -283,7 +300,7 @@ public class State {
                 this.hasRaft == state.hasRaft &&
                 this.hasTreasure == state.hasTreasure &&
                 this.direction == state.direction;// &&
-                //this.sameMap(state);
+        //this.sameMap(state);
     }
 
     protected Tile[][] deepCopyMap() {
@@ -316,6 +333,73 @@ public class State {
             }
         }
         return true;
+    }
+
+    private void pickupObject(Tile objectTile) {
+        // Remove an object from the known items or treasures, because
+        // the agent has moved to that tile and picked it up
+
+        LinkedList<Tile> knownObjects = new LinkedList<>();
+        Tile tile;
+
+        // Find out which type of object it is
+        switch (objectTile.getItem()) {
+            case 'a':
+            case 'k':
+            case 'd':
+                knownObjects = knownItems;
+                break;
+            case '$':
+                knownObjects = knownTreasures;
+                break;
+        }
+
+        // Iterate through the known objects and remove the one we picked up
+        ListIterator<Tile> it = knownObjects.listIterator();
+        while (it.hasNext()) {
+            tile = it.next();
+            if (tile.getItem() == objectTile.getItem() && tile.getX() == objectTile.getX() && tile.getY() == objectTile.getY()) {
+                it.remove();
+                objectTile.setItem('0');
+                return;
+            }
+        }
+
+        // If the object was not in the list, there must be a disconnect between the known objects
+        // and the map. Let the user know.
+        throw new RuntimeException("Couldn't find the object that was supposed to be removed from known objects");
+    }
+
+    private void discoverObject(Tile objectTile) {
+        // Add a new object to the lists of known items and treasures,
+        // if it is not already known
+
+        LinkedList<Tile> knownObjects = new LinkedList<>();
+        Tile tile;
+
+        // Find out which type of object it is
+        switch (objectTile.getItem()) {
+            case 'a':
+            case 'k':
+            case 'd':
+                knownObjects = knownItems;
+                break;
+            case '$':
+                knownObjects = knownTreasures;
+                break;
+        }
+
+        // Check if we already know about this object
+        ListIterator<Tile> it = knownObjects.listIterator();
+        while (it.hasNext()) {
+            tile = it.next();
+            if (tile.getItem() == objectTile.getItem() && tile.getX() == objectTile.getX() && tile.getY() == objectTile.getY()) {
+                return;
+            }
+        }
+
+        // If we reach this point the object was not already known, so add it
+        knownObjects.add(objectTile);
     }
 }
 

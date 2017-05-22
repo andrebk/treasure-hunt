@@ -12,8 +12,7 @@ import java.util.Queue;
 
 public class Agent extends State {
 
-    LinkedList<Tile> itemTiles;
-    LinkedList<Character> plan;
+    LinkedList<Character> plan = new LinkedList<>();
 
     Agent() {
         super();
@@ -48,9 +47,20 @@ public class Agent extends State {
 
         // REPLACE THIS CODE WITH AI TO CHOOSE ACTION
 
+        char action;
+
         updateMap(view);
         printMap();
         printState();
+        System.out.println("Known treasures: " + knownTreasures.toString());
+        System.out.println("Known items: " + knownItems.toString());
+
+        // If there is a plan, execute the next action in that plan
+//        if(!plan.isEmpty()) {
+//            action = plan.removeFirst();
+//            updateState(action);
+//            return action;
+//        }
 
         System.out.println("Starting pathfinding...");
         long startTime = System.nanoTime();
@@ -60,6 +70,7 @@ public class Agent extends State {
 
         System.out.println("Found path in " + duration + " milliseconds");
         System.out.println("Path is: " + plan.toString());
+
 
         try {
             char ch = getHumanAction();

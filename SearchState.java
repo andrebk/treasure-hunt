@@ -1,14 +1,12 @@
 import java.util.LinkedList;
+import java.util.ListIterator;
 
 public class SearchState extends State implements Comparable<SearchState> {
     private int targetX, targetY;
 
-    private LinkedList<SearchState> prevStates;//TODO: Check for repetition
+    private LinkedList<SearchState> prevStates;
     private char prevAction;
     private int cost, heuristic;
-
-    //TODO: List of known treasure positions?
-    //TODO: List of known item positions?
 
 
     SearchState(State state) {
@@ -22,6 +20,8 @@ public class SearchState extends State implements Comparable<SearchState> {
         this.hasRaft = state.hasRaft;
         this.hasTreasure = state.hasTreasure;
         this.direction = state.direction;
+        this.knownItems = deepCopyLL(state.knownItems);
+        this.knownTreasures = deepCopyLL(state.knownTreasures);
     }
 
     SearchState(Agent agent, Tile target) {
@@ -52,6 +52,12 @@ public class SearchState extends State implements Comparable<SearchState> {
             case 'c':
             case 'b':
                 this.map = deepCopyMap();
+                break;
+            case 'f':
+                Position nextPos = getNextPos();
+                if (getTile(nextPos.getX(), nextPos.getY()).getItem() != '0') {
+                    this.map = deepCopyMap();
+                }
         }
 
         prevAction = action;
@@ -62,7 +68,6 @@ public class SearchState extends State implements Comparable<SearchState> {
     }
 
     public LinkedList<SearchState> expandState() {
-        //TODO: Check for repeats here?
         LinkedList<SearchState> newStates = new LinkedList<>();
         Position nextPos = getNextPos();
         Tile nextTile = getTile(nextPos.getX(), nextPos.getY());
@@ -70,34 +75,38 @@ public class SearchState extends State implements Comparable<SearchState> {
         newStates.add(new SearchState(this, 'r'));
         newStates.add(new SearchState(this, 'l'));
 
-        if (nextTile == null) {
+        if (nextTile != null) {
             // Can't plan a path into unexplored territory
-            //removeRepeatStates(newStates);
-            return newStates;
-        }
-        if (canMoveForward(nextTile)) {
-            newStates.add(new SearchState(this, 'f'));
-        }
-        if (canCutTree(nextTile)) {
-            newStates.add(new SearchState(this, 'c'));
-        }
-        if (canUnlock(nextTile)) {
-            newStates.add(new SearchState(this, 'u'));
-        }
-        if (canBlowUp(nextTile)) {
-            newStates.add(new SearchState(this, 'b'));
+
+            if (canMoveForward(nextTile)) {
+                newStates.add(new SearchState(this, 'f'));
+            }
+            if (canCutTree(nextTile)) {
+                newStates.add(new SearchState(this, 'c'));
+            }
+            if (canUnlock(nextTile)) {
+                newStates.add(new SearchState(this, 'u'));
+            }
+            if (canBlowUp(nextTile)) {
+                newStates.add(new SearchState(this, 'b'));
+            }
         }
 
-        //removeRepeatStates(newStates);
+        removeRepeatStates(newStates);
         return newStates;
     }
 
     public static void removeRepeatStates(LinkedList<SearchState> states) {
         // Goes through a List of SearchStates and removes all states that have a state S in their prevStates List
         // that satisfies state.sameState(S)
-        for (SearchState state : states) {
+
+        SearchState state;
+        ListIterator<SearchState> it = states.listIterator();
+
+        while (it.hasNext()) {
+            state = it.next();
             if (state.prevStates != null && state.prevStates.contains(state)) {
-                states.remove(state);
+                it.remove();
             }
         }
     }
@@ -205,6 +214,17 @@ public class SearchState extends State implements Comparable<SearchState> {
             newList.addLast(item);
         }
         return newList;
+    }
+
+    private LinkedList<Tile> deepCopyLL(LinkedList<Tile> list) {
+        LinkedList<Tile> tiles = new LinkedList<>();
+        Tile newTile;
+
+        for (Tile tile : list) {
+            newTile = new Tile(tile);
+            tiles.add(newTile);
+        }
+        return tiles;
     }
 
     // Needed for sorting in priority queue
