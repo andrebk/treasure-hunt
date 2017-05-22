@@ -2,11 +2,12 @@ import java.util.LinkedList;
 import java.util.ListIterator;
 
 public class SearchState extends State implements Comparable<SearchState> {
-    private int targetX, targetY;
+    private LinkedList<Tile> targets;
 
     private LinkedList<SearchState> prevStates;
     private char prevAction;
-    private int cost, heuristic;
+    private int cost;
+    private int heuristic = Integer.MAX_VALUE;
 
 
     SearchState(State state) {
@@ -24,10 +25,9 @@ public class SearchState extends State implements Comparable<SearchState> {
         this.knownTreasures = deepCopyLL(state.knownTreasures);
     }
 
-    SearchState(Agent agent, Tile target) {
+    SearchState(Agent agent, LinkedList<Tile> targets) {
         this((State) agent);
-        this.targetX = target.getX();
-        this.targetY = target.getY();
+        this.targets = targets;
         prevStates = new LinkedList<>();
         prevAction = Character.MIN_VALUE; // null
         setCost(0);
@@ -36,8 +36,7 @@ public class SearchState extends State implements Comparable<SearchState> {
 
     private SearchState(SearchState state) {
         this((State) state);
-        this.targetX = state.targetX;
-        this.targetY = state.targetY;
+        this.targets = state.targets;
         prevStates = shallowCopyLL(state.prevStates);
         prevStates.addLast(state);
         // Doesn't set cost, heuristic or prevAction
@@ -166,7 +165,18 @@ public class SearchState extends State implements Comparable<SearchState> {
 
     public void setHeuristic() {
         // Manhattan distance
-        this.heuristic = Math.abs(targetX - posX) + Math.abs(targetY - posY);
+        int newHeuristic;
+
+        if (targets == null || targets.isEmpty()) {
+            throw new NullPointerException("Targets not set");
+        }
+
+        for (Tile target : targets) {
+            newHeuristic = Math.abs(target.getX() - posX) + Math.abs(target.getY() - posY);
+            if (newHeuristic < this.heuristic) {
+                this.heuristic = newHeuristic;
+            }
+        }
     }
 
     public int getFCost() {
@@ -241,7 +251,6 @@ public class SearchState extends State implements Comparable<SearchState> {
     // Needed for List.contains in AStarSearch. Might be obsolete if data structures change
     @Override
     public boolean equals(Object o) {
-        //return (o instanceof Thing) && (this.x == ((Thing) o).x);
         return (o instanceof SearchState) && sameState((SearchState) o);
     }
 }

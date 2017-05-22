@@ -64,7 +64,7 @@ public class Agent extends State {
 
         System.out.println("Starting pathfinding...");
         long startTime = System.nanoTime();
-        plan = AStarSearch.findPath(this, getTile(posX, posY), getTile(80, 80));
+        plan = AStarSearch.findPath(this, knownTreasures);
         long stopTime = System.nanoTime();
         long duration = (stopTime - startTime) / 1000000;
 
