@@ -55,28 +55,87 @@ public class Agent extends State {
         System.out.println("Known treasures: " + knownTreasures.toString());
         System.out.println("Known items: " + knownItems.toString());
 
-        // If there is a plan, execute the next action in that plan
-//        if(!plan.isEmpty()) {
-//            action = plan.removeFirst();
-//            updateState(action);
-//            return action;
-//        }
+//        System.out.println("Starting pathfinding...");
+//        long startTime = System.nanoTime();
+//        plan = AStarSearch.findPath(this, knownTreasures);
+//        long stopTime = System.nanoTime();
+//        long duration = (stopTime - startTime) / 1000000;
+//
+//        System.out.println("Found path in " + duration + " milliseconds");
+//        System.out.println("Path is: " + plan.toString());
 
-        System.out.println("Starting pathfinding...");
-        long startTime = System.nanoTime();
-        plan = AStarSearch.findPath(this, knownTreasures);
-        long stopTime = System.nanoTime();
-        long duration = (stopTime - startTime) / 1000000;
+        if (!plan.isEmpty()) {
+            System.out.println("Preexisting plan, executing next step");
 
-        System.out.println("Found path in " + duration + " milliseconds");
-        System.out.println("Path is: " + plan.toString());
+            action = plan.removeFirst();
+            updateState(action);
+            return action;
+        }
+
+        if (hasTreasure) {
+            LinkedList<Tile> home = new LinkedList<>();
+            home.add(getTile(start, start));
+
+            try {
+                System.out.println("Have treasure, planning path home...");
+                plan = Search.AStar(this, home);
+                System.out.println("Found path home, executing...");
+
+
+                action = plan.removeFirst();
+                updateState(action);
+                return action;
+            } catch (NoPathFoundException e) {
+                System.out.println("Could not find path home: " + e.getMessage());
+            }
+        }
+
+        if (!knownTreasures.isEmpty()) {
+            try {
+                System.out.println("Know where treasure is, planning path to it...");
+                plan = Search.AStar(this, knownTreasures);
+                System.out.println("Found path to treasure, executing...");
+
+                action = plan.removeFirst();
+                updateState(action);
+                return action;
+            } catch (NoPathFoundException e) {
+                System.out.println("Could not find path to treasure: " + e.getMessage());
+            }
+        }
+
+        if (!knownItems.isEmpty()) {
+            try {
+                System.out.println("Know where item(s) are, planning path to one...");
+                plan = Search.AStar(this, knownItems);
+                System.out.println("Found path to item, executing...");
+
+                action = plan.removeFirst();
+                updateState(action);
+                return action;
+            } catch (NoPathFoundException e) {
+                System.out.println("Could not find path to item: " + e.getMessage());
+            }
+        }
+
+        try {
+            System.out.println("Planning exploration...");
+            plan = Search.UCS(this);
+            System.out.println("Found exploration path, executing...");
+
+            action = plan.removeFirst();
+            updateState(action);
+            return action;
+        } catch (NoPathFoundException e) {
+            System.out.println("Could not find unmapped area: " + e.getMessage());
+        }
 
 
         try {
-            char ch = getHumanAction();
-            updateState(ch);
+            action = getHumanAction();
+            updateState(action);
 
-            return ch;
+            return action;
         } catch (IOException e) {
             System.out.println("IO error:" + e);
         }
@@ -142,7 +201,7 @@ public class Agent extends State {
                         }
                     }
                 }
-                agent.print_view(view); // COMMENT THIS OUT BEFORE SUBMISSION
+                //agent.print_view(view); // COMMENT THIS OUT BEFORE SUBMISSION
                 action = agent.get_action(view);
                 out.write(action);
             }
