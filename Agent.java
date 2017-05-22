@@ -10,137 +10,15 @@ import java.net.*;
 import java.util.LinkedList;
 import java.util.Queue;
 
-public class Agent {
+public class Agent extends State {
 
-    private Tile[][] map = new Tile[164][164];
-    private int start = 82;
-    private int x = start;
-    private int y = start;
+    LinkedList<Tile> itemTiles;
+    LinkedList<Character> plan;
 
-    private int dynamites = 0;
-    private boolean hasDynamite = false;
-    private boolean hasAxe = false;
-    private boolean hasKey = false;
-    private boolean hasRaft = false;
-    private boolean hasTreasure = false;
-
-    private final static int EAST = 0;
-    private final static int NORTH = 1;
-    private final static int WEST = 2;
-    private final static int SOUTH = 3;
-
-    private int direction = NORTH;
-
-
-    private void updateMap(char view[][]) {
-        int row, col;
-        Tile newTile;
-        for (int i = 0; i < 5; i++) {
-            for (int j = 0; j < 5; j++) {
-
-                // Transform coordinates to rotate view orientation to correct map orientation
-                switch (direction) {
-                    case NORTH:
-                        row = i;
-                        col = j;
-                        break;
-                    case WEST:
-                        row = 5 - 1 - j;
-                        col = i;
-                        break;
-                    case EAST:
-                        row = j;
-                        col = 5 - 1 - i;
-                        break;
-                    case SOUTH:
-                        row = 5 - 1 - i;
-                        col = 5 - 1 - j;
-                        break;
-                    default:
-                        throw new RuntimeException("Invalid direction");
-                }
-
-                int tileY = y - 2 + row;
-                int tileX = x - 2 + col;
-
-                if (i == 2 && j == 2) {
-                    // If players position has not been set before, the player must be on the start tile
-                    // so set that tile to a "land" tile
-                    if (map[tileY][tileX] == null) {
-                        newTile = new Tile(' ', ' ', tileX, tileY);
-                        map[tileY][tileX] = newTile;
-                    }
-                } else if (map[tileY][tileX] == null) {
-                    newTile = new Tile(view[i][j], view[i][j], tileX, tileY);
-                    map[tileY][tileX] = newTile;
-                } else {
-                    map[tileY][tileX].setType(view[i][j]);
-                    map[tileY][tileX].setItem(view[i][j]);
-                }
-            }
-        }
-    }
-    
-    private void printMap() {
-        char ch = ' ';
-        char[] line = new char[164];
-        System.out.println();
-        boolean printLine;
-        Tile currentTile;
-
-        for (int y = 0; y < 164; y++) {
-            printLine = false;
-
-            for (int x = 0; x < 164; x++) {
-                currentTile = map[y][x];
-
-                if (currentTile == null) {
-                    // This tile has not yet been seen by the agent
-                    ch = '?';
-                } else if (x == this.x && y == this.y) {
-                    // If at player position, print player icon in correct orientation
-                    switch (direction) {
-                        case NORTH:
-                            ch = '^';
-                            break;
-                        case EAST:
-                            ch = '>';
-                            break;
-                        case WEST:
-                            ch = '<';
-                            break;
-                        case SOUTH:
-                            ch = 'v';
-                            break;
-                    }
-                    printLine = true;
-                } else if (x == start && y == start) {
-                    // Indicate starting position when printing the map
-                    ch = 'S';
-                    printLine = true;
-                } else {
-                    // Print the tile type. If there is an item there, print it instead.
-                    ch = currentTile.getType();
-                    if (currentTile.getItem() != '0') {
-                        ch = currentTile.getItem();
-                    }
-                    printLine = true;
-                }
-
-                line[x] = ch;
-            }
-            if (printLine) {
-                // Print this line of the map, if it has explored parts
-                System.out.format("y: %3d  ", y);
-                System.out.println(line);
-            }
-        }
-        System.out.format("    x:  %-10d%-10d%-10d%-10d%-10d%-10d%-10d%-10d%-10d%-10d%-10d%-10d%-10d%-10d%-10d%-10d%-10d%n%n",
-                0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160);
-    }
-
-    private void printState() {
-        System.out.println("Raft: " + hasRaft + "  Axe: " + hasAxe + "  Key: " + hasKey + "  Dynamite: " + dynamites + "  Treasure: " + hasTreasure);
+    Agent() {
+        super();
+        posX = start;
+        posY = start;
     }
 
     private char getHumanAction() throws IOException {
@@ -165,126 +43,14 @@ public class Agent {
         }
         throw new RuntimeException("Error occurred when getting player input");
     }
-    
+
+    //TODO: Possibly move hasRaft and getPos to State class
     public boolean hasRaft(){
-    	if(this.hasRaft){
-    		return true;
-    	}
-    	else{
-    		return false;
-    	}
+    	return this.hasRaft;
     }
 
-    public Tile getTile(int x, int y) {
-        Tile tile = map[y][x];
-        return tile;
-    }
-
-    private int numUnseenTiles(int x, int y) {
-        int unSeen = 0;
-        int i, j;
-        for (i = -2; i <= 2; i++) {
-            for (j = -2; j <= 2; j++) {
-                if (map[y + i][x + j] == null) {
-                    unSeen++;
-                }
-            }
-        }
-        return unSeen;
-    }
-    
-    public Tile getPos(){
-    	return map[this.y][this.x];
-    }
-
-    private void updateState(char ch) {
-        int deltaX = 0;
-        int deltaY = 0;
-        int nextX, nextY;
-        Tile nextTile;
-        Tile currentTile = map[y][x];
-
-        switch (direction) {
-            case EAST:
-                deltaX = 1;
-                break;
-            case WEST:
-                deltaX = -1;
-                break;
-            case NORTH:
-                deltaY = -1;
-                break;
-            case SOUTH:
-                deltaY = 1;
-                break;
-        }
-
-        // Find the tile in front of the player
-        nextX = x + deltaX;
-        nextY = y + deltaY;
-        nextTile = map[nextY][nextX];
-
-        // Update agents world state
-        switch (ch) {
-            case 'f':
-                switch (nextTile.getType()) {
-                    case '*':
-                    case '-':
-                    case 'T':
-                        // Obstacle in the way, do not update position
-                        break;
-                    case ' ':
-                        // Lose the raft when moving from water to land
-                        if (currentTile.getType() == '~' && hasRaft) {
-                            hasRaft = false;
-                        }
-                        x = nextX;
-                        y = nextY;
-                        break;
-                    default:
-                        x = nextX;
-                        y = nextY;
-                        break;
-                }
-                switch (nextTile.getItem()) {
-                    case 'a':
-                        hasAxe = true;
-                        break;
-                    case 'd':
-                        hasDynamite = true;
-                        dynamites++;
-                        break;
-                    case 'k':
-                        hasKey = true;
-                        break;
-                    case '$':
-                        hasTreasure = true;
-                        break;
-                }
-                break;
-            case 'l':
-                direction = (direction + 1) % 4;
-                break;
-            case 'r':
-                direction = (direction + 3) % 4;
-                break;
-            case 'c':
-                if (nextTile.getType() == 't' && hasAxe) {
-                    hasRaft = true;
-                }
-                break;
-            case 'u':
-                break;
-            case 'b':
-                //TODO: Only use a dynamite if nextTile can be blown up?
-                if (hasDynamite) {
-                    dynamites--;
-                    if (dynamites <= 0) {
-                        hasDynamite = false;
-                    }
-                }
-                break;
-        }
+    public Tile getPos() {
+        return getTile(this.posX, this.posY);
     }
 
     public char get_action(char view[][]) {
@@ -294,6 +60,15 @@ public class Agent {
         updateMap(view);
         printMap();
         printState();
+
+        System.out.println("Starting pathfinding...");
+        long startTime = System.nanoTime();
+        plan = AStarSearch.findPath(this, getTile(posX, posY), getTile(80, 80));
+        long stopTime = System.nanoTime();
+        long duration = (stopTime - startTime) / 1000000;
+
+        System.out.println("Found path in " + duration + " milliseconds");
+        System.out.println("Path is: " + plan.toString());
 
         try {
             char ch = getHumanAction();
