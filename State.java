@@ -18,6 +18,10 @@ public class State {
     protected boolean hasRaft = false;
     protected boolean hasTreasure = false;
 
+    protected int doorsOpened = 0;
+    protected int treesChopped = 0;
+    protected int tilesBlownUp = 0;
+
     public final static int EAST = 0;
     public final static int NORTH = 1;
     public final static int WEST = 2;
@@ -206,11 +210,13 @@ public class State {
             case 'c':
                 if (nextTile.getType() == 't' && hasAxe) {
                     hasRaft = true;
+                    treesChopped++;
                     nextTile.setType(' ');
                 }
                 break;
             case 'u':
                 if (nextTile.getType() == '-' && hasKey) {
+                    doorsOpened++;
                     nextTile.setType(' ');
                 }
                 break;
@@ -224,6 +230,7 @@ public class State {
                             if (dynamites <= 0) {
                                 hasDynamite = false;
                             }
+                            tilesBlownUp++;
                             nextTile.setType(' ');
                             break;
                     }
@@ -303,8 +310,11 @@ public class State {
                 this.hasKey == state.hasKey &&
                 this.hasRaft == state.hasRaft &&
                 this.hasTreasure == state.hasTreasure &&
-                this.direction == state.direction;// &&
-        //this.sameMap(state);
+                this.direction == state.direction &&
+                this.doorsOpened == state.doorsOpened &&
+                this.treesChopped == state.treesChopped &&
+                this.tilesBlownUp == state.tilesBlownUp;
+        //TODO: Also check knownTreasures and knownItems
     }
 
     protected Tile[][] deepCopyMap() {

@@ -21,6 +21,9 @@ public class SearchState extends State implements Comparable<SearchState> {
         this.hasRaft = state.hasRaft;
         this.hasTreasure = state.hasTreasure;
         this.direction = state.direction;
+        this.doorsOpened = state.doorsOpened;
+        this.treesChopped = state.treesChopped;
+        this.tilesBlownUp = state.tilesBlownUp;
         this.knownItems = deepCopyLL(state.knownItems);
         this.knownTreasures = deepCopyLL(state.knownTreasures);
     }
