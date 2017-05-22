@@ -42,7 +42,7 @@ public class AStarSearch {
                         inOpen = true;
                     }
                 }
-                if (!inOpen) {
+                if (!inOpen || open.isEmpty()) {
                     open.add(newState);
                 }
             }
