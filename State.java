@@ -274,7 +274,8 @@ public class State {
                 this.hasKey == state.hasKey &&
                 this.hasRaft == state.hasRaft &&
                 this.hasTreasure == state.hasTreasure &&
-                this.direction == state.direction;
+                this.direction == state.direction;// &&
+                //this.sameMap(state);
     }
 
     protected Tile[][] deepCopyMap() {
@@ -294,6 +295,19 @@ public class State {
             }
         }
         return newMap;
+    }
+
+    protected boolean sameMap(State state) {
+        for (int i = 0; i < mapSize; i++) {
+            for (int j = 0; j < mapSize; j++) {
+                if (this.map[i][j] == null && state.map[i][j] != null || this.map[i][j] != null && state.map[i][j] == null) {
+                    return false;
+                } else if (this.map[i][j] != null && state.map[i][j] != null && this.map[i][j].equals(state.map[i][j])) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 }
 

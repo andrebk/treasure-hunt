@@ -12,10 +12,7 @@ public class SearchState extends State implements Comparable<SearchState> {
 
 
     SearchState(State state) {
-        this.map = state.map; //TODO: Is this a new map, or a reference to the old one?
-        //TODO: Maybe do a deep copy of the map, and then pass the reference to later states?
-        //TODO: Might not work, as it could be hard to undo changes when going back in the search tree.
-        //TODO: Maybe do deep copy only when actions that change the map are performed.
+        this.map = state.map;
         this.posX = state.posX;
         this.posY = state.posY;
         this.dynamites = state.dynamites;
@@ -25,9 +22,6 @@ public class SearchState extends State implements Comparable<SearchState> {
         this.hasRaft = state.hasRaft;
         this.hasTreasure = state.hasTreasure;
         this.direction = state.direction;
-
-        //TODO: This constructor is called by other constructors. Those need to set SearchState specific parameters like:
-        //TODO: Set target coordinates, cost, heuristic and prevActions
     }
 
     SearchState(Agent agent, Tile target) {
@@ -78,6 +72,7 @@ public class SearchState extends State implements Comparable<SearchState> {
 
         if (nextTile == null) {
             // Can't plan a path into unexplored territory
+            //removeRepeatStates(newStates);
             return newStates;
         }
         if (canMoveForward(nextTile)) {
@@ -92,7 +87,19 @@ public class SearchState extends State implements Comparable<SearchState> {
         if (canBlowUp(nextTile)) {
             newStates.add(new SearchState(this, 'b'));
         }
+
+        //removeRepeatStates(newStates);
         return newStates;
+    }
+
+    public static void removeRepeatStates(LinkedList<SearchState> states) {
+        // Goes through a List of SearchStates and removes all states that have a state S in their prevStates List
+        // that satisfies state.sameState(S)
+        for (SearchState state : states) {
+            if (state.prevStates != null && state.prevStates.contains(state)) {
+                states.remove(state);
+            }
+        }
     }
 
     public LinkedList<Character> getPathHere() {
@@ -157,16 +164,6 @@ public class SearchState extends State implements Comparable<SearchState> {
         return getCost() + getHeuristic();
     }
 
-    public int compareTo(SearchState state) {
-        int comparison;
-
-        comparison = Integer.compare(this.getFCost(), state.getFCost());
-        if (comparison == 0) {
-            comparison = Integer.compare(this.getHeuristic(), state.getHeuristic());
-        }
-        return comparison;
-    }
-
     public boolean samePosition(Tile tile) {
         return this.posX == tile.getX() && this.posY == tile.getY();
     }
@@ -208,5 +205,23 @@ public class SearchState extends State implements Comparable<SearchState> {
             newList.addLast(item);
         }
         return newList;
+    }
+
+    // Needed for sorting in priority queue
+    public int compareTo(SearchState state) {
+        int comparison;
+
+        comparison = Integer.compare(this.getFCost(), state.getFCost());
+        if (comparison == 0) {
+            comparison = Integer.compare(this.getHeuristic(), state.getHeuristic());
+        }
+        return comparison;
+    }
+
+    // Needed for List.contains in AStarSearch. Might be obsolete if data structures change
+    @Override
+    public boolean equals(Object o) {
+        //return (o instanceof Thing) && (this.x == ((Thing) o).x);
+        return (o instanceof SearchState) && sameState((SearchState) o);
     }
 }

@@ -26,10 +26,7 @@ public class AStarSearch {
             newStates = current.expandState();
 
             for (SearchState newState : newStates) {
-                if (closed.contains(newState)) {
-                    //TODO: Change condition, this one probably doesn't work because it can be the same state without being the same object.
-                    // Dependent on closed implementation
-                    //TODO: Also check that this is not a repeated state.
+                if (closed.contains(newState)) { // Works because SearchState overrides the equals method.
                     continue;
                 }
 

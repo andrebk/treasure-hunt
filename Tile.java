@@ -85,6 +85,13 @@ public class Tile {
         return this.y;
     }
 
+    public boolean equals(Tile tile) {
+        return this.type == tile.type &&
+                this.item == tile.item &&
+                this.x == tile.x &&
+                this.y == tile.y;
+    }
+
 }
 
 class InvalidTypeException extends RuntimeException {
