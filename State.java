@@ -88,6 +88,10 @@ public class State {
         return unSeen;
     }
 
+    protected int numUnseenTiles() {
+        return numUnseenTiles(this.posX, this.posY);
+    }
+
     protected void updateMap(char view[][]) {
         int row, col, tileX, tileY;
         char tileView;

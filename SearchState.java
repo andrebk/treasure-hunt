@@ -168,7 +168,9 @@ public class SearchState extends State implements Comparable<SearchState> {
         int newHeuristic;
 
         if (targets == null || targets.isEmpty()) {
-            throw new NullPointerException("Targets not set");
+            //throw new NullPointerException("Targets not set");
+            this.heuristic = 0;
+            return;
         }
 
         for (Tile target : targets) {
