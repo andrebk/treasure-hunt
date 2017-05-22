@@ -62,6 +62,14 @@ public class State {
         return new Position(nextX, nextY);
     }
 
+    public boolean hasRaft(){
+        return this.hasRaft;
+    }
+
+    public Tile getTileAtPos() {
+        return getTile(this.posX, this.posY);
+    }
+
     protected int numUnseenTiles(int x, int y) {
         int unSeen = 0;
         int i, j;

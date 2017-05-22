@@ -9,7 +9,7 @@ public class Logic {
 	
 	
 		public boolean validExploreMove(Agent agent,Tile step){
-			if(agent.getPos().getType() == ' '){
+			if(agent.getTileAtPos().getType() == ' '){
 				if(step.getType() == ' '){
 					return true;
 					}
@@ -20,7 +20,7 @@ public class Logic {
 				}
 			}
 			
-			else if(agent.getPos().getType() == '~'){
+			else if(agent.getTileAtPos().getType() == '~'){
 				if(step.getType() == ' '){
 					return true;
 				}
@@ -35,7 +35,7 @@ public class Logic {
 			
 		Queue<Tile> queue = new LinkedList<Tile>();
 		Map<Tile,Tile> set = new HashMap<Tile,Tile>();
-		Tile start = agent.getPos();
+		Tile start = agent.getTileAtPos();
 		
 		queue.add(start);
 		set.put(start, null);
@@ -55,7 +55,7 @@ public class Logic {
 						Tile step = agent.getTile(x, y+1);
 						ArrayList<Tile> path = new ArrayList<Tile>();
 						path.add(step);
-						while(step != agent.getPos()){
+						while(step != agent.getTileAtPos()){
 							step = set.get(agent.getTile(x, y+1));
 							path.add(step);
 						}
@@ -74,7 +74,7 @@ public class Logic {
 						Tile step = agent.getTile(x+1, y);
 						ArrayList<Tile> path = new ArrayList<Tile>();
 						path.add(step);
-						while(step != agent.getPos()){
+						while(step != agent.getTileAtPos()){
 							step = set.get(agent.getTile(x+1, y));
 							path.add(step);
 						}
@@ -92,7 +92,7 @@ public class Logic {
 						Tile step = agent.getTile(x, y-1);
 						ArrayList<Tile> path = new ArrayList<Tile>();
 						path.add(step);
-						while(step != agent.getPos()){
+						while(step != agent.getTileAtPos()){
 							step = set.get(agent.getTile(x, y-1));
 							path.add(step);
 						}
@@ -111,7 +111,7 @@ public class Logic {
 						Tile step = agent.getTile(x, y+1);
 						ArrayList<Tile> path = new ArrayList<Tile>();
 						path.add(step);
-						while(step != agent.getPos()){
+						while(step != agent.getTileAtPos()){
 							step = set.get(agent.getTile(x-1, y));
 							path.add(step);
 						}
