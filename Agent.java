@@ -48,29 +48,22 @@ public class Agent extends State {
         // REPLACE THIS CODE WITH AI TO CHOOSE ACTION
 
         char action;
+        long startTime = System.nanoTime(), stopTime, duration;
 
         updateMap(view);
-        printMap();
-        printState();
-        System.out.println("Known treasures: " + knownTreasures.toString());
-        System.out.println("Known items: " + knownItems.toString());
-
-//        System.out.println("Starting pathfinding...");
-//        long startTime = System.nanoTime();
-//        plan = AStarSearch.findPath(this, knownTreasures);
-//        long stopTime = System.nanoTime();
-//        long duration = (stopTime - startTime) / 1000000;
-//
-//        System.out.println("Found path in " + duration + " milliseconds");
-//        System.out.println("Path is: " + plan.toString());
 
         if (!plan.isEmpty()) {
-            System.out.println("Preexisting plan, executing next step");
+            System.out.println("Preexisting plan, executing next step: " + plan.peekFirst());
 
             action = plan.removeFirst();
             updateState(action);
             return action;
         }
+
+        printMap();
+        printState();
+        System.out.println("Known treasures: " + knownTreasures.toString());
+        System.out.println("Known items: " + knownItems.toString());
 
         if (hasTreasure) {
             LinkedList<Tile> home = new LinkedList<>();
@@ -78,56 +71,79 @@ public class Agent extends State {
 
             try {
                 System.out.println("Have treasure, planning path home...");
+                startTime = System.nanoTime();
                 plan = Search.AStar(this, home);
-                System.out.println("Found path home, executing...");
 
+                stopTime = System.nanoTime();
+                duration = (stopTime - startTime) / 1000000;
+                System.out.println("Found path home in " + duration + " ms, executing: " + plan.peekFirst());
 
                 action = plan.removeFirst();
                 updateState(action);
                 return action;
             } catch (NoPathFoundException e) {
-                System.out.println("Could not find path home: " + e.getMessage());
+                stopTime = System.nanoTime();
+                duration = (stopTime - startTime) / 1000000;
+                System.out.println("Could not find path home [" + duration + " ms]: " + e.getMessage());
             }
         }
 
         if (!knownTreasures.isEmpty()) {
             try {
                 System.out.println("Know where treasure is, planning path to it...");
+                startTime = System.nanoTime();
                 plan = Search.AStar(this, knownTreasures);
-                System.out.println("Found path to treasure, executing...");
+
+                stopTime = System.nanoTime();
+                duration = (stopTime - startTime) / 1000000;
+                System.out.println("Found path to treasure in " + duration + " ms, executing: " + plan.peekFirst());
 
                 action = plan.removeFirst();
                 updateState(action);
                 return action;
             } catch (NoPathFoundException e) {
-                System.out.println("Could not find path to treasure: " + e.getMessage());
+                stopTime = System.nanoTime();
+                duration = (stopTime - startTime) / 1000000;
+                System.out.println("Could not find path to treasure [" + duration + " ms]: " + e.getMessage());
             }
         }
 
         if (!knownItems.isEmpty()) {
             try {
                 System.out.println("Know where item(s) are, planning path to one...");
+                startTime = System.nanoTime();
                 plan = Search.AStar(this, knownItems);
-                System.out.println("Found path to item, executing...");
+
+                stopTime = System.nanoTime();
+                duration = (stopTime - startTime) / 1000000;
+                System.out.println("Found path to item in " + duration + " ms, executing: " + plan.peekFirst());
 
                 action = plan.removeFirst();
                 updateState(action);
                 return action;
             } catch (NoPathFoundException e) {
-                System.out.println("Could not find path to item: " + e.getMessage());
+                stopTime = System.nanoTime();
+                duration = (stopTime - startTime) / 1000000;
+                System.out.println("Could not find path to item [" + duration + " ms]: " + e.getMessage());
             }
         }
 
         try {
             System.out.println("Planning exploration...");
+            startTime = System.nanoTime();
             plan = Search.UCS(this);
-            System.out.println("Found exploration path, executing...");
+
+            stopTime = System.nanoTime();
+            duration = (stopTime - startTime) / 1000000;
+            System.out.println("Found exploration path in " + duration + " ms, executing: " + plan.peekFirst());
 
             action = plan.removeFirst();
             updateState(action);
             return action;
         } catch (NoPathFoundException e) {
-            System.out.println("Could not find unmapped area: " + e.getMessage());
+            stopTime = System.nanoTime();
+            duration = (stopTime - startTime) / 1000000;
+            System.out.println("Could not find unmapped area [" + duration +" ms]: " + e.getMessage());
         }
 
 
