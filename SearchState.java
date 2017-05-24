@@ -8,6 +8,7 @@ public class SearchState extends State implements Comparable<SearchState> {
     private char prevAction;
     private int cost;
     private int heuristic = Integer.MAX_VALUE;
+    private SearchMode mode = SearchMode.SAFE;
 
 
     SearchState(State state) {
@@ -28,9 +29,10 @@ public class SearchState extends State implements Comparable<SearchState> {
         this.knownTreasures = deepCopyLL(state.knownTreasures);
     }
 
-    SearchState(Agent agent, LinkedList<Tile> targets) {
+    SearchState(Agent agent, LinkedList<Tile> targets, SearchMode mode) {
         this((State) agent);
         this.targets = targets;
+        this.mode = mode;
         prevStates = new LinkedList<>();
         prevAction = Character.MIN_VALUE; // null
         setCost(0);
@@ -40,6 +42,7 @@ public class SearchState extends State implements Comparable<SearchState> {
     private SearchState(SearchState state) {
         this((State) state);
         this.targets = state.targets;
+        this.mode = state.mode;
         prevStates = shallowCopyLL(state.prevStates);
         prevStates.addLast(state);
         // Doesn't set cost, heuristic or prevAction
@@ -139,11 +142,21 @@ public class SearchState extends State implements Comparable<SearchState> {
 
     public void increaseCost(char action) {
         //TODO: Improve costs. Extra cost for moving to land and losing the raft. Bomb cost dependent on number of bombs?
+        //TODO: Chopping cost dependent on whether or not there are other trees available?
+        Tile currentTile = getTileAtPos();
+        Tile nextTile = getTile(getNextPos().getX(), getNextPos().getY());
+
         switch (action) {
             case 'r':
             case 'l':
-            case 'f':
                 this.cost++;
+                break;
+            case 'f':
+                if (currentTile.getType() == '~' && nextTile.getType() == ' ' && hasRaft) {
+                    this.cost += 20;
+                } else {
+                    this.cost++;
+                }
                 break;
             case 'c':
                 if (hasRaft) {
@@ -157,7 +170,14 @@ public class SearchState extends State implements Comparable<SearchState> {
                 this.cost++;
                 break;
             case 'b':
-                this.cost += 25;
+                switch (nextTile.getType()) {
+                    case '*':
+                        this.cost += 25;
+                    case '-':
+                    case 't':
+                        this.cost += 50;
+
+                }
                 break;
         }
     }
@@ -193,31 +213,74 @@ public class SearchState extends State implements Comparable<SearchState> {
     }
 
     private boolean canMoveForward(Tile nextTile) {
-        switch (nextTile.getType()) {
-            case ' ':
-                return true;
-            case '~':
-                return hasRaft;
-            default:
-                return false;
+        if (nextTile == null) {
+            return false;
         }
 
+        Tile currentTile = getTileAtPos();
+        switch (mode) {
+            case SAFE:
+                // Do not go from land to water, or from water to land. To avoid wasting raft
+                return currentTile.getType() == nextTile.getType();
+            case MODERATE:
+            case FREE:
+                switch (nextTile.getType()) {
+                    case ' ':
+                        return true;
+                    case '~':
+                        return hasRaft;
+                    default:
+                        return false;
+                }
+            default:
+                return true;
+        }
     }
 
     private boolean canCutTree(Tile nextTile) {
-        return nextTile.getType() == 't' && hasAxe;
+        if (nextTile == null) {
+            return false;
+        }
+
+        switch (mode) {
+            case SAFE:
+                return false;
+            case MODERATE:
+                //TODO: Add limitation here so that trees can only be cut if other trees are available
+                //TODO: Do that by modifying cost instead?
+            case FREE:
+                return nextTile.getType() == 't' && hasAxe;
+            default:
+                return false;
+        }
     }
 
     private boolean canUnlock(Tile nextTile) {
+        if (nextTile == null) {
+            return false;
+        }
+
         return nextTile.getType() == '-' && hasKey;
     }
 
     private boolean canBlowUp(Tile nextTile) {
-        switch (nextTile.getType()) {
-            case '*':
-            case 't':
-            case '-':
-                return hasDynamite;
+        if (nextTile == null) {
+            return false;
+        }
+
+        switch (mode) {
+            case SAFE:
+            case MODERATE:
+                return false;
+            case FREE:
+                switch (nextTile.getType()) {
+                    case '*':
+                    case 't':
+                    case '-':
+                        return hasDynamite;
+                    default:
+                        return false;
+                }
             default:
                 return false;
         }
@@ -258,4 +321,9 @@ public class SearchState extends State implements Comparable<SearchState> {
     public boolean equals(Object o) {
         return (o instanceof SearchState) && sameState((SearchState) o);
     }
+}
+
+enum SearchMode {
+    SAFE, MODERATE, FREE
+    //TODO: Add HYPOTHETICAL. Plans a route that won't be execute, to assess item needs
 }

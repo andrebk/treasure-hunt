@@ -72,7 +72,7 @@ public class Agent extends State {
             try {
                 System.out.println("Have treasure, planning path home...");
                 startTime = System.nanoTime();
-                plan = Search.AStar(this, home);
+                plan = Search.AStar(this, home, SearchMode.FREE);
 
                 stopTime = System.nanoTime();
                 duration = (stopTime - startTime) / 1000000;
@@ -88,11 +88,30 @@ public class Agent extends State {
             }
         }
 
+
+        try {
+            System.out.println("Planning safe exploration...");
+            startTime = System.nanoTime();
+            plan = Search.UCS(this, SearchMode.SAFE);
+
+            stopTime = System.nanoTime();
+            duration = (stopTime - startTime) / 1000000;
+            System.out.println("Found safe exploration path in " + duration + " ms, executing: " + plan.peekFirst());
+
+            action = plan.removeFirst();
+            updateState(action);
+            return action;
+        } catch (NoPathFoundException e) {
+            stopTime = System.nanoTime();
+            duration = (stopTime - startTime) / 1000000;
+            System.out.println("Could not find safe exploration [" + duration +" ms]: " + e.getMessage());
+        }
+
         if (!knownTreasures.isEmpty()) {
             try {
                 System.out.println("Know where treasure is, planning path to it...");
                 startTime = System.nanoTime();
-                plan = Search.AStar(this, knownTreasures);
+                plan = Search.AStar(this, knownTreasures, SearchMode.FREE);
 
                 stopTime = System.nanoTime();
                 duration = (stopTime - startTime) / 1000000;
@@ -112,7 +131,7 @@ public class Agent extends State {
             try {
                 System.out.println("Know where item(s) are, planning path to one...");
                 startTime = System.nanoTime();
-                plan = Search.AStar(this, knownItems);
+                plan = Search.AStar(this, knownItems, SearchMode.FREE);
 
                 stopTime = System.nanoTime();
                 duration = (stopTime - startTime) / 1000000;
@@ -131,7 +150,7 @@ public class Agent extends State {
         try {
             System.out.println("Planning exploration...");
             startTime = System.nanoTime();
-            plan = Search.UCS(this);
+            plan = Search.UCS(this, SearchMode.FREE);
 
             stopTime = System.nanoTime();
             duration = (stopTime - startTime) / 1000000;
