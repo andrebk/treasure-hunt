@@ -85,3 +85,14 @@ public class Search {
         throw new NoPathFoundException("Exhausted all possibilities");
     }
 }
+
+
+class NoPathFoundException extends RuntimeException {
+    NoPathFoundException() {
+        super();
+    }
+
+    NoPathFoundException(String message) {
+        super(message);
+    }
+}
