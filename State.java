@@ -18,9 +18,9 @@ public class State {
     protected boolean hasRaft = false;
     protected boolean hasTreasure = false;
 
-    protected int doorsOpened = 0;
-    protected int treesChopped = 0;
-    protected int tilesBlownUp = 0;
+    protected LinkedList<Tile> doorsOpened = new LinkedList<>();
+    protected LinkedList<Tile> treesChopped = new LinkedList<>();
+    protected LinkedList<Tile> tilesBlownUp = new LinkedList<>();
 
     public final static int EAST = 0;
     public final static int NORTH = 1;
@@ -210,13 +210,13 @@ public class State {
             case 'c':
                 if (nextTile.getType() == 't' && hasAxe) {
                     hasRaft = true;
-                    treesChopped++;
+                    treesChopped.add(nextTile);
                     nextTile.setType(' ');
                 }
                 break;
             case 'u':
                 if (nextTile.getType() == '-' && hasKey) {
-                    doorsOpened++;
+                    doorsOpened.add(nextTile);
                     nextTile.setType(' ');
                 }
                 break;
@@ -230,7 +230,7 @@ public class State {
                             if (dynamites <= 0) {
                                 hasDynamite = false;
                             }
-                            tilesBlownUp++;
+                            tilesBlownUp.add(nextTile);
                             nextTile.setType(' ');
                             break;
                     }
@@ -311,9 +311,9 @@ public class State {
                 this.hasRaft == state.hasRaft &&
                 this.hasTreasure == state.hasTreasure &&
                 this.direction == state.direction &&
-                this.doorsOpened == state.doorsOpened &&
-                this.treesChopped == state.treesChopped &&
-                this.tilesBlownUp == state.tilesBlownUp;
+                sameChangedTiles(this.doorsOpened, state.doorsOpened) &&
+                sameChangedTiles(this.treesChopped, state.treesChopped) &&
+                sameChangedTiles(this.tilesBlownUp, state.tilesBlownUp);
         //TODO: Also check knownTreasures and knownItems
     }
 
@@ -414,6 +414,11 @@ public class State {
 
         // If we reach this point the object was not already known, so add it
         knownObjects.add(objectTile);
+    }
+
+    private boolean sameChangedTiles(LinkedList<Tile> list1, LinkedList<Tile> list2) {
+        boolean temp = list1.size() == list2.size() && list1.containsAll(list2);
+        return temp;
     }
 }
 

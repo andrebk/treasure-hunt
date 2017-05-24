@@ -104,7 +104,7 @@ public class Agent extends State {
         } catch (NoPathFoundException e) {
             stopTime = System.nanoTime();
             duration = (stopTime - startTime) / 1000000;
-            System.out.println("Could not find safe exploration [" + duration +" ms]: " + e.getMessage());
+            System.out.println("Could not find safe exploration [" + duration + " ms]: " + e.getMessage());
         }
 
         if (!knownTreasures.isEmpty()) {
@@ -162,7 +162,7 @@ public class Agent extends State {
         } catch (NoPathFoundException e) {
             stopTime = System.nanoTime();
             duration = (stopTime - startTime) / 1000000;
-            System.out.println("Could not find unmapped area [" + duration +" ms]: " + e.getMessage());
+            System.out.println("Could not find unmapped area [" + duration + " ms]: " + e.getMessage());
         }
 
 

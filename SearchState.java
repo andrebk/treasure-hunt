@@ -11,7 +11,7 @@ public class SearchState extends State implements Comparable<SearchState> {
     private SearchMode mode = SearchMode.SAFE;
 
 
-    SearchState(State state) {
+    private SearchState(State state) {
         this.map = state.map;
         this.posX = state.posX;
         this.posY = state.posY;
@@ -22,9 +22,9 @@ public class SearchState extends State implements Comparable<SearchState> {
         this.hasRaft = state.hasRaft;
         this.hasTreasure = state.hasTreasure;
         this.direction = state.direction;
-        this.doorsOpened = state.doorsOpened;
-        this.treesChopped = state.treesChopped;
-        this.tilesBlownUp = state.tilesBlownUp;
+        this.doorsOpened = shallowCopyLL(state.doorsOpened);
+        this.treesChopped = shallowCopyLL(state.treesChopped);
+        this.tilesBlownUp = shallowCopyLL(state.tilesBlownUp);
         this.knownItems = deepCopyLL(state.knownItems);
         this.knownTreasures = deepCopyLL(state.knownTreasures);
     }
@@ -173,6 +173,7 @@ public class SearchState extends State implements Comparable<SearchState> {
                 switch (nextTile.getType()) {
                     case '*':
                         this.cost += 25;
+                        break;
                     case '-':
                     case 't':
                         this.cost += 50;
@@ -256,11 +257,7 @@ public class SearchState extends State implements Comparable<SearchState> {
     }
 
     private boolean canUnlock(Tile nextTile) {
-        if (nextTile == null) {
-            return false;
-        }
-
-        return nextTile.getType() == '-' && hasKey;
+        return nextTile != null && nextTile.getType() == '-' && hasKey;
     }
 
     private boolean canBlowUp(Tile nextTile) {
@@ -324,6 +321,8 @@ public class SearchState extends State implements Comparable<SearchState> {
 }
 
 enum SearchMode {
-    SAFE, MODERATE, FREE
+    SAFE,       // Do not chop trees or blow op tiles. Do not go between water and land
+    MODERATE,   // Do not use bombs. (limited) chopping of trees and use of raft is allowed
+    FREE        // All actions are legal
     //TODO: Add HYPOTHETICAL. Plans a route that won't be execute, to assess item needs
 }

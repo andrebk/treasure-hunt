@@ -89,11 +89,16 @@ public class Tile {
         return this.y;
     }
 
-    public boolean equals(Tile tile) {
+    public boolean sameTile(Tile tile) {
         return this.type == tile.type &&
                 this.item == tile.item &&
                 this.x == tile.x &&
                 this.y == tile.y;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return (o instanceof Tile) && sameTile((Tile) o);
     }
 
     public String toString() {
