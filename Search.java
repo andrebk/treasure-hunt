@@ -1,3 +1,4 @@
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.PriorityQueue;
 
@@ -63,15 +64,18 @@ public class Search {
 
                 //TODO: Possibly rewrite this so it doesn't remove in a foreach loop
                 // If state is in open, check if new path to it is better, and if so update it
-                for (SearchState state : open) {
+                Iterator<SearchState> it = open.iterator();
+                while (it.hasNext()) {
                     inOpen = false;
+                    SearchState state = it.next();
                     if (state.sameState(newState)) {
+                        inOpen = true;
                         if (newState.getFCost() < state.getFCost()) {
-                            open.remove(state);
+                            it.remove();
                             open.add(newState);
                             break;
                         }
-                        inOpen = true;
+
                     }
                 }
 
