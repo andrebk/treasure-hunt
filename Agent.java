@@ -62,8 +62,6 @@ public class Agent extends State {
 
         printMap();
         printState();
-        System.out.println("Known treasures: " + knownTreasures.toString());
-        System.out.println("Known items: " + knownItems.toString());
 
         if (hasTreasure) {
             LinkedList<Tile> home = new LinkedList<>();

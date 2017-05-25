@@ -25,6 +25,7 @@ public class SearchState extends State implements Comparable<SearchState> {
         this.doorsOpened = shallowCopyLL(state.doorsOpened);
         this.treesChopped = shallowCopyLL(state.treesChopped);
         this.tilesBlownUp = shallowCopyLL(state.tilesBlownUp);
+        this.knownTrees = deepCopyLL(state.knownTrees);
         this.knownItems = deepCopyLL(state.knownItems);
         this.knownTreasures = deepCopyLL(state.knownTreasures);
     }
@@ -141,8 +142,7 @@ public class SearchState extends State implements Comparable<SearchState> {
     }
 
     public void increaseCost(char action) {
-        //TODO: Improve costs. Extra cost for moving to land and losing the raft. Bomb cost dependent on number of bombs?
-        //TODO: Chopping cost dependent on whether or not there are other trees available?
+        //TODO: Improve costs. Bomb cost dependent on number of bombs?
         Tile currentTile = getTileAtPos();
         Tile nextTile = getTile(getNextPos().getX(), getNextPos().getY());
 
@@ -153,7 +153,15 @@ public class SearchState extends State implements Comparable<SearchState> {
                 break;
             case 'f':
                 if (currentTile.getType() == '~' && nextTile.getType() == ' ' && hasRaft) {
+                    // Cost of moving from raft to land
                     this.cost += 20;
+                } else if (currentTile.getType() == ' ' && nextTile.getType() == '~' && hasRaft) {
+                    // Cost of moving from land to raft
+                    if (knownTrees.size() > 0) {
+                        this.cost += Math.ceil(20 / knownTrees.size());
+                    } else {
+                        this.cost += 20;
+                    }
                 } else {
                     this.cost++;
                 }
@@ -161,7 +169,11 @@ public class SearchState extends State implements Comparable<SearchState> {
             case 'c':
                 if (hasRaft) {
                     // Encourage not chopping down trees if agent already has a raft
-                    this.cost += 15;
+                    if (knownTrees.size() > 0) {
+                        this.cost += Math.ceil(10 / knownTrees.size());
+                    } else {
+                        this.cost += 15;
+                    }
                 } else {
                     this.cost++;
                 }
@@ -247,8 +259,6 @@ public class SearchState extends State implements Comparable<SearchState> {
             case SAFE:
                 return false;
             case MODERATE:
-                //TODO: Add limitation here so that trees can only be cut if other trees are available
-                //TODO: Do that by modifying cost instead?
             case FREE:
                 return nextTile.getType() == 't' && hasAxe;
             default:

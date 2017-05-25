@@ -8,6 +8,7 @@ public class State {
 
     LinkedList<Tile> knownTreasures = new LinkedList<>();
     LinkedList<Tile> knownItems = new LinkedList<>();
+    LinkedList<Tile> knownTrees = new LinkedList<>();
 
     protected int posX, posY;
 
@@ -127,7 +128,7 @@ public class State {
 
                 tileY = posY - 2 + row;
                 tileX = posX - 2 + col;
-                tileView = view[i][j];
+                tileView = Character.toLowerCase(view[i][j]);
 
                 if (i == 2 && j == 2) {
                     // If players position has not been set before, the player must be on the start tile
@@ -143,6 +144,7 @@ public class State {
                         case 'k':
                         case 'd':
                         case '$':
+                        case 't':
                             discoverObject(getTile(tileX, tileY));
                             break;
                     }
@@ -211,6 +213,7 @@ public class State {
                 if (nextTile.getType() == 't' && hasAxe) {
                     hasRaft = true;
                     treesChopped.add(nextTile);
+                    pickupObject(nextTile);
                     nextTile.setType(' ');
                 }
                 break;
@@ -299,6 +302,9 @@ public class State {
 
     protected void printState() {
         System.out.println("Raft: " + hasRaft + "  Axe: " + hasAxe + "  Key: " + hasKey + "  Dynamite: " + dynamites + "  Treasure: " + hasTreasure);
+        System.out.println("Known treasures: " + knownTreasures.toString());
+        System.out.println("Known items: " + knownItems.toString());
+        System.out.println("Known trees: " + knownTrees.toString());
     }
 
     protected boolean sameState(State state) {
@@ -367,13 +373,17 @@ public class State {
                 knownObjects = knownTreasures;
                 break;
         }
+        if (objectTile.getType() == 't') {
+            knownObjects = knownTrees;
+        }
 
         // Iterate through the known objects and remove the one we picked up
         ListIterator<Tile> it = knownObjects.listIterator();
         while (it.hasNext()) {
             tile = it.next();
-            if (tile.getItem() == objectTile.getItem() && tile.getX() == objectTile.getX() && tile.getY() == objectTile.getY()) {
+            if (tile.sameTile(objectTile)) {
                 it.remove();
+                objectTile.setType(' ');
                 objectTile.setItem('0');
                 return;
             }
@@ -402,12 +412,15 @@ public class State {
                 knownObjects = knownTreasures;
                 break;
         }
+        if (objectTile.getType() == 't') {
+            knownObjects = knownTrees;
+        }
 
         // Check if we already know about this object
         ListIterator<Tile> it = knownObjects.listIterator();
         while (it.hasNext()) {
             tile = it.next();
-            if (tile.getItem() == objectTile.getItem() && tile.getX() == objectTile.getX() && tile.getY() == objectTile.getY()) {
+            if (tile.sameTile(objectTile)) {
                 return;
             }
         }
@@ -417,8 +430,7 @@ public class State {
     }
 
     private boolean sameChangedTiles(LinkedList<Tile> list1, LinkedList<Tile> list2) {
-        boolean temp = list1.size() == list2.size() && list1.containsAll(list2);
-        return temp;
+        return list1.size() == list2.size() && list1.containsAll(list2);
     }
 }
 
