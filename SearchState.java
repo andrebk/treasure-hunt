@@ -261,13 +261,24 @@ public class SearchState extends State implements Comparable<SearchState> {
             case MODERATE:
             case FREE:
                 return nextTile.getType() == 't' && hasAxe;
+            case HYPOTHETICAL:
+                return true;
             default:
                 return false;
         }
     }
 
     private boolean canUnlock(Tile nextTile) {
-        return nextTile != null && nextTile.getType() == '-' && hasKey;
+        switch (mode) {
+            case SAFE:
+            case MODERATE:
+            case FREE:
+                return nextTile != null && nextTile.getType() == '-' && hasKey;
+            case HYPOTHETICAL:
+                return true;
+            default:
+                return false;
+        }
     }
 
     private boolean canBlowUp(Tile nextTile) {
@@ -288,6 +299,8 @@ public class SearchState extends State implements Comparable<SearchState> {
                     default:
                         return false;
                 }
+            case HYPOTHETICAL:
+                return true;
             default:
                 return false;
         }
@@ -328,11 +341,4 @@ public class SearchState extends State implements Comparable<SearchState> {
     public boolean equals(Object o) {
         return (o instanceof SearchState) && sameState((SearchState) o);
     }
-}
-
-enum SearchMode {
-    SAFE,       // Do not chop trees or blow op tiles. Do not go between water and land
-    MODERATE,   // Do not use bombs. (limited) chopping of trees and use of raft is allowed
-    FREE        // All actions are legal
-    //TODO: Add HYPOTHETICAL. Plans a route that won't be execute, to assess item needs
 }
