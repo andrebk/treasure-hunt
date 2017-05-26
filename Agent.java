@@ -107,26 +107,64 @@ public class Agent extends State {
 
         if (!knownTreasures.isEmpty()) {
             try {
-                System.out.println("Know where treasure is, planning path to it...");
+                System.out.println("Know where treasure is, planning hypothetical path to it...");
                 startTime = System.nanoTime();
-                plan = Search.AStar(this, knownTreasures, SearchMode.FREE);
+                plan = Search.AStar(this, knownTreasures, SearchMode.HYPOTHETICAL);
 
                 stopTime = System.nanoTime();
                 duration = (stopTime - startTime) / 1000000;
-                System.out.println("Found path to treasure in " + duration + " ms, executing: " + plan.peekFirst());
-
-                action = plan.removeFirst();
-                updateState(action);
-                return action;
+                System.out.println("Found hypothetical path to treasure in " + duration + " ms");
             } catch (NoPathFoundException e) {
                 stopTime = System.nanoTime();
                 duration = (stopTime - startTime) / 1000000;
-                System.out.println("Could not find path to treasure [" + duration + " ms]: " + e.getMessage());
+                System.out.println("Could not find hypothetical path to treasure [" + duration + " ms]: " + e.getMessage());
             }
+            if (hasViablePlan()) {
+                System.out.println("Hypothetical plan to treasure is viable, executing " + plan.peekFirst());
+                action = plan.removeFirst();
+                updateState(action);
+                return action;
+            }
+/*                try {
+                    System.out.println("Know where treasure is, planning path to it...");
+                    startTime = System.nanoTime();
+                    plan = Search.AStar(this, knownTreasures, SearchMode.FREE);
+
+                    stopTime = System.nanoTime();
+                    duration = (stopTime - startTime) / 1000000;
+                    System.out.println("Found path to treasure in " + duration + " ms, executing: " + plan.peekFirst());
+
+                    action = plan.removeFirst();
+                    updateState(action);
+                    return action;
+                } catch (NoPathFoundException e) {
+                    stopTime = System.nanoTime();
+                    duration = (stopTime - startTime) / 1000000;
+                    System.out.println("Could not find path to treasure [" + duration + " ms]: " + e.getMessage());
+                }*/
         }
 
         if (!knownItems.isEmpty()) {
             try {
+                System.out.println("Know where item(s) are, planning hypothetical path to one...");
+                startTime = System.nanoTime();
+                plan = Search.AStar(this, knownItems, SearchMode.HYPOTHETICAL);
+
+                stopTime = System.nanoTime();
+                duration = (stopTime - startTime) / 1000000;
+                System.out.println("Found hypothetical path to item in " + duration + " ms");
+            } catch (NoPathFoundException e) {
+                stopTime = System.nanoTime();
+                duration = (stopTime - startTime) / 1000000;
+                System.out.println("Could not find hypothetical path to item [" + duration + " ms]: " + e.getMessage());
+            }
+            if (hasViablePlan()) {
+                System.out.println("Hypothetical plan to item is viable, executing " + plan.peekFirst());
+                action = plan.removeFirst();
+                updateState(action);
+                return action;
+            }
+/*            try {
                 System.out.println("Know where item(s) are, planning path to one...");
                 startTime = System.nanoTime();
                 plan = Search.AStar(this, knownItems, SearchMode.FREE);
@@ -142,7 +180,25 @@ public class Agent extends State {
                 stopTime = System.nanoTime();
                 duration = (stopTime - startTime) / 1000000;
                 System.out.println("Could not find path to item [" + duration + " ms]: " + e.getMessage());
-            }
+            }*/
+        }
+
+        try {
+            System.out.println("Planning moderate exploration...");
+            startTime = System.nanoTime();
+            plan = Search.UCS(this, SearchMode.MODERATE);
+
+            stopTime = System.nanoTime();
+            duration = (stopTime - startTime) / 1000000;
+            System.out.println("Found moderate exploration path in " + duration + " ms, executing: " + plan.peekFirst());
+
+            action = plan.removeFirst();
+            updateState(action);
+            return action;
+        } catch (NoPathFoundException e) {
+            stopTime = System.nanoTime();
+            duration = (stopTime - startTime) / 1000000;
+            System.out.println("Could not find moderate exploration [" + duration + " ms]: " + e.getMessage());
         }
 
         try {
@@ -174,6 +230,25 @@ public class Agent extends State {
         }
 
         return 0;
+    }
+
+    private boolean hasViablePlan() {
+        int chops = 0;
+        int opens = 0;
+        int explosions = 0;
+        for (char action : plan) {
+            switch (action) {
+                case 'u':
+                    opens++;
+                    break;
+                case 'c':
+                    chops++;
+                    break;
+                case 'b':
+                    explosions++;
+            }
+        }
+        return (chops > 0 == hasAxe) && (opens > 0 == hasKey) && explosions <= dynamites;
     }
 
     private void print_view(char view[][]) {

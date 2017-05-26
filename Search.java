@@ -62,7 +62,6 @@ public class Search {
                 }
 
 
-                //TODO: Possibly rewrite this so it doesn't remove in a foreach loop
                 // If state is in open, check if new path to it is better, and if so update it
                 Iterator<SearchState> it = open.iterator();
                 while (it.hasNext()) {

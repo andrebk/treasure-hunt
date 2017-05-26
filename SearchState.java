@@ -154,13 +154,13 @@ public class SearchState extends State implements Comparable<SearchState> {
             case 'f':
                 if (currentTile.getType() == '~' && nextTile.getType() == ' ' && hasRaft) {
                     // Cost of moving from raft to land
-                    this.cost += 20;
+                    this.cost += 5;
                 } else if (currentTile.getType() == ' ' && nextTile.getType() == '~' && hasRaft) {
                     // Cost of moving from land to raft
                     if (knownTrees.size() > 0) {
-                        this.cost += Math.ceil(20 / knownTrees.size());
+                        this.cost += Math.ceil(5 / knownTrees.size());
                     } else {
-                        this.cost += 20;
+                        this.cost += 5;
                     }
                 } else {
                     this.cost++;
@@ -172,7 +172,7 @@ public class SearchState extends State implements Comparable<SearchState> {
                     if (knownTrees.size() > 0) {
                         this.cost += Math.ceil(10 / knownTrees.size());
                     } else {
-                        this.cost += 15;
+                        this.cost += 10;
                     }
                 } else {
                     this.cost++;
@@ -184,11 +184,11 @@ public class SearchState extends State implements Comparable<SearchState> {
             case 'b':
                 switch (nextTile.getType()) {
                     case '*':
-                        this.cost += 25;
+                        this.cost += 15;
                         break;
                     case '-':
                     case 't':
-                        this.cost += 50;
+                        this.cost += 20;
 
                 }
                 break;
@@ -237,6 +237,7 @@ public class SearchState extends State implements Comparable<SearchState> {
                 return currentTile.getType() == nextTile.getType();
             case MODERATE:
             case FREE:
+            case HYPOTHETICAL:
                 switch (nextTile.getType()) {
                     case ' ':
                         return true;
@@ -262,7 +263,7 @@ public class SearchState extends State implements Comparable<SearchState> {
             case FREE:
                 return nextTile.getType() == 't' && hasAxe;
             case HYPOTHETICAL:
-                return true;
+                return nextTile.getType() == 't';
             default:
                 return false;
         }
@@ -275,7 +276,7 @@ public class SearchState extends State implements Comparable<SearchState> {
             case FREE:
                 return nextTile != null && nextTile.getType() == '-' && hasKey;
             case HYPOTHETICAL:
-                return true;
+                return nextTile != null && nextTile.getType() == '-';
             default:
                 return false;
         }
@@ -300,7 +301,12 @@ public class SearchState extends State implements Comparable<SearchState> {
                         return false;
                 }
             case HYPOTHETICAL:
-                return true;
+                switch (nextTile.getType()) {
+                    case '*':
+                    case 't':
+                    case '-':
+                        return true;
+                }
             default:
                 return false;
         }
