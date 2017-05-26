@@ -33,7 +33,7 @@ public class Search {
         boolean inOpen = false;
 
         PriorityQueue<SearchState> open = new PriorityQueue<>();
-        HashSet<SearchState> closed = new HashSet<>(); //TODO: Change to HashSet
+        HashSet<SearchState> closed = new HashSet<>();
 
         // Add the starting state to the set of open states
         SearchState firstState = new SearchState(agent, targets, mode);
@@ -48,7 +48,7 @@ public class Search {
             //System.out.println("Current path: " + current.getPathHere().toString());
 
             /* If we have reached a goal, return the path to it.
-             * For A* the we have reached the goal if the current position is the same as the positon of a target */
+             * For A* the we have reached the goal if the current position is the same as the position of a target */
             if (algorithm.equals("AStar")) {
                 for (Tile target : targets) {
                     if (target.getX() == current.posX && target.getY() == current.posY) {

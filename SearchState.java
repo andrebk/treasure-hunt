@@ -51,6 +51,14 @@ public class SearchState extends State implements Comparable<SearchState> {
         this.mode = state.mode;
         prevStates = shallowCopyLL(state.prevStates);
         prevStates.addLast(state);
+
+        // Make sure the agent has all items in hypothetical search mode
+        if (mode == SearchMode.HYPOTHETICAL) {
+            hasAxe = true;
+            hasKey = true;
+            hasDynamite = true;
+            dynamites = 1;
+        }
         // Doesn't set cost, heuristic or prevAction
     }
 
@@ -222,6 +230,9 @@ public class SearchState extends State implements Comparable<SearchState> {
                         this.cost += 20;
 
                 }
+                if (currentTile.getType() == '~') {
+                    this.cost += 5;
+                }
                 break;
         }
     }
@@ -274,8 +285,6 @@ public class SearchState extends State implements Comparable<SearchState> {
             case MODERATE:
             case FREE:
             case HYPOTHETICAL:
-                //TODO: Hypothetial search modde can not be set here, as updateState check what items agent has
-                //TODO: Should be implemented as giving agent items in constructor, or similar
 
                 // Can always move forward to land, but can only go into water if agent has a raft
                 switch (nextTile.getType()) {
@@ -289,6 +298,7 @@ public class SearchState extends State implements Comparable<SearchState> {
             default:
                 return true;
         }
+
     }
 
     /* Check if agent can perform the chop tree action from this state */
@@ -303,9 +313,8 @@ public class SearchState extends State implements Comparable<SearchState> {
                 return false;
             case MODERATE:
             case FREE:
-                return nextTile.getType() == 't' && hasAxe;
             case HYPOTHETICAL:
-                return nextTile.getType() == 't';
+                return nextTile.getType() == 't' && hasAxe;
             default:
                 return false;
         }
@@ -313,16 +322,7 @@ public class SearchState extends State implements Comparable<SearchState> {
 
     /* Check if agent can perform the unlock door action from this state */
     private boolean canUnlock(Tile nextTile) {
-        switch (mode) {
-            case SAFE:
-            case MODERATE:
-            case FREE:
-                return nextTile != null && nextTile.getType() == '-' && hasKey;
-            case HYPOTHETICAL:
-                return nextTile != null && nextTile.getType() == '-';
-            default:
-                return false;
-        }
+        return nextTile != null && nextTile.getType() == '-' && hasKey;
     }
 
     /* Check if agent can perform the blow up tile action from this state */
@@ -337,6 +337,7 @@ public class SearchState extends State implements Comparable<SearchState> {
                 // Never use dynamite when in safe or moderate search mode
                 return false;
             case FREE:
+            case HYPOTHETICAL:
 
                 // Can use dynamite if the tile in front of the agent can be blown up, and it has dynamite in inventory
                 switch (nextTile.getType()) {
@@ -346,13 +347,6 @@ public class SearchState extends State implements Comparable<SearchState> {
                         return hasDynamite;
                     default:
                         return false;
-                }
-            case HYPOTHETICAL:
-                switch (nextTile.getType()) {
-                    case '*':
-                    case 't':
-                    case '-':
-                        return true;
                 }
             default:
                 return false;
