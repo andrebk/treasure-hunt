@@ -1,3 +1,4 @@
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.PriorityQueue;
@@ -24,7 +25,7 @@ public class Search {
         boolean inOpen = false;
 
         PriorityQueue<SearchState> open = new PriorityQueue<>();
-        LinkedList<SearchState> closed = new LinkedList<>(); //TODO: Change to hashmap, or other more optimized structure.
+        HashSet<SearchState> closed = new HashSet<>(); //TODO: Change to HashSet
 
 
         // Add the starting state to the set of open states
@@ -34,7 +35,7 @@ public class Search {
         // Search as long as there are open states, i.e. states that haven't been expanded
         while (!open.isEmpty()) {
             current = open.poll();
-            closed.addLast(current);
+            closed.add(current);
             //System.out.println("Current path: " + current.getPathHere().toString());
 
 
