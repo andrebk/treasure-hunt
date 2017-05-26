@@ -116,28 +116,28 @@ public class Agent extends State {
 
             /* First it tries to plan a path using the hypothetical search mode. This mode allows using items
              * the agent doesn't have, and is used to evaluate if there exists a feasible path to the treasure */
-            try {
-                System.out.println("Know where treasure is, planning hypothetical path to it...");
-                startTime = System.nanoTime();
-                plan = Search.AStar(this, knownTreasures, SearchMode.HYPOTHETICAL);
-
-                stopTime = System.nanoTime();
-                duration = (stopTime - startTime) / 1000000;
-                System.out.println("Found hypothetical path to treasure in " + duration + " ms");
-            } catch (NoPathFoundException e) {
-                stopTime = System.nanoTime();
-                duration = (stopTime - startTime) / 1000000;
-                System.out.println("Could not find hypothetical path to treasure [" + duration + " ms]: " + e.getMessage());
-            }
-
-            // If the hypothetical search produces a plan that can be executed, the agent will use that plan
-            if (hasViablePlan()) {
-                System.out.println("Hypothetical plan to treasure is viable, executing " + plan.peekFirst());
-                action = plan.removeFirst();
-                updateState(action);
-                return action;
-            }
-                /*
+//            try {
+//                System.out.println("Know where treasure is, planning hypothetical path to it...");
+//                startTime = System.nanoTime();
+//                plan = Search.AStar(this, knownTreasures, SearchMode.HYPOTHETICAL);
+//
+//                stopTime = System.nanoTime();
+//                duration = (stopTime - startTime) / 1000000;
+//                System.out.println("Found hypothetical path to treasure in " + duration + " ms");
+//            } catch (NoPathFoundException e) {
+//                stopTime = System.nanoTime();
+//                duration = (stopTime - startTime) / 1000000;
+//                System.out.println("Could not find hypothetical path to treasure [" + duration + " ms]: " + e.getMessage());
+//            }
+//
+//            // If the hypothetical search produces a plan that can be executed, the agent will use that plan
+//            if (hasViablePlan()) {
+//                System.out.println("Hypothetical plan to treasure is viable, executing " + plan.peekFirst());
+//                action = plan.removeFirst();
+//                updateState(action);
+//                return action;
+//            }
+                
                 try {
                     System.out.println("Know where treasure is, planning path to it...");
                     startTime = System.nanoTime();
@@ -155,7 +155,7 @@ public class Agent extends State {
                     duration = (stopTime - startTime) / 1000000;
                     System.out.println("Could not find path to treasure [" + duration + " ms]: " + e.getMessage());
                 }
-                */
+                
         }
 
         /* If the agent knows the location of any items (keys, dynamite or axes), it tries to plan a path to one */

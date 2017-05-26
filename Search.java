@@ -1,3 +1,4 @@
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -33,17 +34,20 @@ public class Search {
         boolean inOpen = false;
 
         PriorityQueue<SearchState> open = new PriorityQueue<>();
+        HashMap<Integer,SearchState> openH = new HashMap<Integer,SearchState>();
         HashSet<SearchState> closed = new HashSet<>(); //TODO: Change to HashSet
 
         // Add the starting state to the set of open states
         SearchState firstState = new SearchState(agent, targets, mode);
         open.add(firstState);
+        openH.put(firstState.hashCode(), firstState);
 
         // Search as long as there are open states, i.e. states that haven't been expanded
         while (!open.isEmpty()) {
 
             // Get the open state with lowest fCost
             current = open.poll();
+            openH.remove(current.hashCode());
             closed.add(current);
             //System.out.println("Current path: " + current.getPathHere().toString());
 
@@ -74,27 +78,39 @@ public class Search {
                 if (closed.contains(newState)) { // Works because SearchState overrides the equals method.
                     continue;
                 }
-
-                // If state is in open, check if new path to it is better, and if so update it
-                Iterator<SearchState> it = open.iterator();
-                while (it.hasNext()) {
-                    inOpen = false;
-                    SearchState state = it.next();
-                    if (state.sameState(newState)) {
-                        inOpen = true;
-                        if (newState.getFCost() < state.getFCost()) {
-                            it.remove();
-                            open.add(newState);
-                            break;
-                        }
-
-                    }
+                int hashCode = newState.hashCode();
+                
+                if(openH.containsKey(hashCode)){
+                	if(newState.getFCost() < openH.get(hashCode).getFCost()){
+                		openH.remove(hashCode);
+                		open.add(newState);
+                		openH.put(hashCode, newState);
+                	}
+                }
+                else if(!openH.containsKey(hashCode)){
+                	open.add(newState);
                 }
 
-                // Add states that have not been seen before to the open set
-                if (!inOpen || open.isEmpty()) {
-                    open.add(newState);
-                }
+//                // If state is in open, check if new path to it is better, and if so update it
+//                Iterator<SearchState> it = open.iterator();
+//                while (it.hasNext()) {
+//                    inOpen = false;
+//                    SearchState state = it.next();
+//                    if (state.sameState(newState)) {
+//                        inOpen = true;
+//                        if (newState.getFCost() < state.getFCost()) {
+//                            it.remove();
+//                            open.add(newState);
+//                            break;
+//                        }
+//
+//                    }
+//                }
+//
+//                // Add states that have not been seen before to the open set
+//                if (!inOpen || open.isEmpty()) {
+//                    open.add(newState);
+//                }
             }
         }
 
