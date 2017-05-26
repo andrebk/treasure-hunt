@@ -1,6 +1,9 @@
 import java.util.LinkedList;
 import java.util.ListIterator;
 
+/* The SearchState class represents a state of the game that is found whilst searching through the statespace.
+ * In addition to the game state, it keeps track of heuristics and costs, possible actions, previous actions.
+ * It also has a search mode, that controls some of its behaviour, e.g. what actions it sees as possible */
 public class SearchState extends State implements Comparable<SearchState> {
     private LinkedList<Tile> targets;
 
@@ -10,7 +13,7 @@ public class SearchState extends State implements Comparable<SearchState> {
     private int heuristic = Integer.MAX_VALUE;
     private SearchMode mode = SearchMode.SAFE;
 
-
+    /* Helper constructor, sets the parameters that are shared between Agent and SearchState objects */
     private SearchState(State state) {
         this.map = state.map;
         this.posX = state.posX;
@@ -30,6 +33,7 @@ public class SearchState extends State implements Comparable<SearchState> {
         this.knownTreasures = deepCopyLL(state.knownTreasures);
     }
 
+    /* Constructor for creating the initial SearchState from the current state of the agent */
     SearchState(Agent agent, LinkedList<Tile> targets, SearchMode mode) {
         this((State) agent);
         this.targets = targets;
@@ -40,6 +44,7 @@ public class SearchState extends State implements Comparable<SearchState> {
         setHeuristic();
     }
 
+    /* Helper constructor for creating a new SearchState from an existing one */
     private SearchState(SearchState state) {
         this((State) state);
         this.targets = state.targets;
@@ -49,6 +54,7 @@ public class SearchState extends State implements Comparable<SearchState> {
         // Doesn't set cost, heuristic or prevAction
     }
 
+    /* Constructor for creating a SearchState that expands a previous state by doing an action */
     SearchState(SearchState state, char action) {
         this(state);
 
@@ -73,6 +79,7 @@ public class SearchState extends State implements Comparable<SearchState> {
         setHeuristic();
     }
 
+    /* Expands this state by creating all the new states that can be reached from it */
     public LinkedList<SearchState> expandState() {
         LinkedList<SearchState> newStates = new LinkedList<>();
         Position nextPos = getNextPos();
@@ -81,8 +88,8 @@ public class SearchState extends State implements Comparable<SearchState> {
         newStates.add(new SearchState(this, 'r'));
         newStates.add(new SearchState(this, 'l'));
 
+        // Can't plan a path into unexplored territory
         if (nextTile != null) {
-            // Can't plan a path into unexplored territory
 
             if (canMoveForward(nextTile)) {
                 newStates.add(new SearchState(this, 'f'));
@@ -102,10 +109,9 @@ public class SearchState extends State implements Comparable<SearchState> {
         return newStates;
     }
 
+    /* Goes through a List of SearchStates and removes all states that have a state S in their prevStates list
+     * that satisfies state.sameState(S) */
     public static void removeRepeatStates(LinkedList<SearchState> states) {
-        // Goes through a List of SearchStates and removes all states that have a state S in their prevStates List
-        // that satisfies state.sameState(S)
-
         SearchState state;
         ListIterator<SearchState> it = states.listIterator();
 
@@ -117,6 +123,7 @@ public class SearchState extends State implements Comparable<SearchState> {
         }
     }
 
+    /* Find the actions necessary to reach this state from the start state */
     public LinkedList<Character> getPathHere() {
         LinkedList<Character> path;
 
@@ -129,58 +136,82 @@ public class SearchState extends State implements Comparable<SearchState> {
         }
     }
 
+    /* Get the action that was taken to reach this state from the previous state */
     public char getPrevAction() {
         return prevAction;
     }
 
+    /* Gets the path cost of moving to this state */
     public int getCost() {
         return cost;
     }
 
+    /* Sets the path cost of this state */
     private void setCost(int cost) {
         this.cost = cost;
     }
 
+    /* Sets the cost of going to this state, dependent on the action that was taken to reach it */
     public void increaseCost(char action) {
         //TODO: Improve costs. Bomb cost dependent on number of bombs?
         Tile currentTile = getTileAtPos();
         Tile nextTile = getTile(getNextPos().getX(), getNextPos().getY());
 
         switch (action) {
+
+            // Cost of turning
             case 'r':
             case 'l':
                 this.cost++;
                 break;
+
+            // Cost of moving forward
             case 'f':
+
+                // Cost of moving from raft to land
                 if (currentTile.getType() == '~' && nextTile.getType() == ' ' && hasRaft) {
-                    // Cost of moving from raft to land
                     this.cost += 5;
-                } else if (currentTile.getType() == ' ' && nextTile.getType() == '~' && hasRaft) {
-                    // Cost of moving from land to raft
+                }
+
+                // Cost of moving from land to raft. Cheaper if there are many trees on the map
+                else if (currentTile.getType() == ' ' && nextTile.getType() == '~' && hasRaft) {
                     if (knownTrees.size() > 0) {
                         this.cost += Math.ceil(5 / knownTrees.size());
                     } else {
                         this.cost += 5;
                     }
-                } else {
+                }
+
+                // Cost of moving forward in the same environment
+                else {
                     this.cost++;
                 }
                 break;
+
+            // Cost of chopping down tree.
             case 'c':
+
+                // Discourage chopping trees if agent already has a raft, and there are few trees
                 if (hasRaft) {
-                    // Encourage not chopping down trees if agent already has a raft
                     if (knownTrees.size() > 0) {
                         this.cost += Math.ceil(10 / knownTrees.size());
                     } else {
                         this.cost += 10;
                     }
-                } else {
+                }
+
+                // If agent doesn't have a raft there is no downside to chopping a tree, so make it cheap
+                else {
                     this.cost++;
                 }
                 break;
+
+            // Cost of unlocking a door, always cheap as there is no downside
             case 'u':
                 this.cost++;
                 break;
+
+            // Cost of using dynamite. Discourage blowing up tiles that can be removed using other tools
             case 'b':
                 switch (nextTile.getType()) {
                     case '*':
@@ -195,16 +226,17 @@ public class SearchState extends State implements Comparable<SearchState> {
         }
     }
 
+    /* Get the heuristic value of this state, that is the approximate cost of reaching the target */
     public int getHeuristic() {
         return heuristic;
     }
 
+    /* Calculate the heuristic for this state. Uses the Manhattan distance to the closes target.
+     * If there are no targets, set the heuristic to zero. This makes uniform cost search possible with A* algorithm */
     public void setHeuristic() {
-        // Manhattan distance
         int newHeuristic;
 
         if (targets == null || targets.isEmpty()) {
-            //throw new NullPointerException("Targets not set");
             this.heuristic = 0;
             return;
         }
@@ -217,15 +249,19 @@ public class SearchState extends State implements Comparable<SearchState> {
         }
     }
 
+    /* Get the estimate total cost of reaching the goal from the start state */
     public int getFCost() {
         return getCost() + getHeuristic();
     }
 
+    /* Check if the agent is on a given tile */
     public boolean samePosition(Tile tile) {
         return this.posX == tile.getX() && this.posY == tile.getY();
     }
 
+    /* Check if the agent can move forward from this state */
     private boolean canMoveForward(Tile nextTile) {
+        //TODO: Bring these if statement into the return statements?
         if (nextTile == null) {
             return false;
         }
@@ -238,6 +274,10 @@ public class SearchState extends State implements Comparable<SearchState> {
             case MODERATE:
             case FREE:
             case HYPOTHETICAL:
+                //TODO: Hypothetial search modde can not be set here, as updateState check what items agent has
+                //TODO: Should be implemented as giving agent items in constructor, or similar
+
+                // Can always move forward to land, but can only go into water if agent has a raft
                 switch (nextTile.getType()) {
                     case ' ':
                         return true;
@@ -251,6 +291,7 @@ public class SearchState extends State implements Comparable<SearchState> {
         }
     }
 
+    /* Check if agent can perform the chop tree action from this state */
     private boolean canCutTree(Tile nextTile) {
         if (nextTile == null) {
             return false;
@@ -258,6 +299,7 @@ public class SearchState extends State implements Comparable<SearchState> {
 
         switch (mode) {
             case SAFE:
+                // Force agent to not cut trees in safe search mode
                 return false;
             case MODERATE:
             case FREE:
@@ -269,6 +311,7 @@ public class SearchState extends State implements Comparable<SearchState> {
         }
     }
 
+    /* Check if agent can perform the unlock door action from this state */
     private boolean canUnlock(Tile nextTile) {
         switch (mode) {
             case SAFE:
@@ -282,6 +325,7 @@ public class SearchState extends State implements Comparable<SearchState> {
         }
     }
 
+    /* Check if agent can perform the blow up tile action from this state */
     private boolean canBlowUp(Tile nextTile) {
         if (nextTile == null) {
             return false;
@@ -290,8 +334,11 @@ public class SearchState extends State implements Comparable<SearchState> {
         switch (mode) {
             case SAFE:
             case MODERATE:
+                // Never use dynamite when in safe or moderate search mode
                 return false;
             case FREE:
+
+                // Can use dynamite if the tile in front of the agent can be blown up, and it has dynamite in inventory
                 switch (nextTile.getType()) {
                     case '*':
                     case 't':
@@ -312,6 +359,7 @@ public class SearchState extends State implements Comparable<SearchState> {
         }
     }
 
+    /* Helper method that does a shallow copy of a linked list */
     private <T> LinkedList<T> shallowCopyLL(LinkedList<T> list) {
         LinkedList<T> newList = new LinkedList<>();
         for (T item : list) {
@@ -320,6 +368,7 @@ public class SearchState extends State implements Comparable<SearchState> {
         return newList;
     }
 
+    /* Helper method that does a deep copy of a linked list of tiles */
     private LinkedList<Tile> deepCopyLL(LinkedList<Tile> list) {
         LinkedList<Tile> tiles = new LinkedList<>();
         Tile newTile;
@@ -331,7 +380,8 @@ public class SearchState extends State implements Comparable<SearchState> {
         return tiles;
     }
 
-    // Needed for sorting in priority queue
+    /* Overload the compareTo method. Needed for sorting in priority queue.
+    * Sorts by fCost, and uses the heuristic as a tie breaker*/
     public int compareTo(SearchState state) {
         int comparison;
 
@@ -342,7 +392,7 @@ public class SearchState extends State implements Comparable<SearchState> {
         return comparison;
     }
 
-    // Needed for List.contains in AStarSearch. Might be obsolete if data structures change
+    /* Override the equals method. Needed for contains() method for e.g. linked lists */
     @Override
     public boolean equals(Object o) {
         return (o instanceof SearchState) && sameState((SearchState) o);
