@@ -2,6 +2,9 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.ListIterator;
 
+/* The State class keeps track of and describes the current state of the game. This includes the known map,
+ * items in the agents possession, the agents position, and which tiles have been changed since the game started.
+ * Both the Agent and SearchState classes extend State, as they both need to keep track of the state. */
 public class State {
     private final static int mapSize = 164;
     protected final static int start = mapSize / 2;
@@ -32,10 +35,12 @@ public class State {
     protected int direction = NORTH;
 
 
+    /* Get the tile at the given position from the map */
     public Tile getTile(int x, int y) {
         return map[y][x];
     }
 
+    /* Set the tile at the given position to be with given type and item */
     protected void setTile(char type, char item, int x, int y) {
         if (map[y][x] == null) {
             // Tile doesn't exist, because it hasn't been seen before. Create it
@@ -49,6 +54,7 @@ public class State {
     
     
 
+    /* Get the position of the tile in front of the agent */
     public Position getNextPos() {
         int deltaX = 0;
         int deltaY = 0;
@@ -69,20 +75,23 @@ public class State {
                 break;
         }
 
-        // Find the tile in front of the player
+        // Find the tile in front of the agent
         nextX = posX + deltaX;
         nextY = posY + deltaY;
         return new Position(nextX, nextY);
     }
 
+    /* Helper function to give public access to private variable hasRaft */
     public boolean hasRaft() {
         return this.hasRaft;
     }
 
+    /* Get the tile at the agents current position */
     public Tile getTileAtPos() {
         return getTile(this.posX, this.posY);
     }
 
+    /* Calculate the number of unseen tiles that can be seen from the given coordinates */
     protected int numUnseenTiles(int x, int y) {
         int unSeen = 0;
         int i, j;
@@ -96,10 +105,12 @@ public class State {
         return unSeen;
     }
 
+    /* Get the number of unseen tiles that can be seen from the current coordinates */
     protected int numUnseenTiles() {
         return numUnseenTiles(this.posX, this.posY);
     }
 
+    /* Update the map with the view provided by the game host */
     protected void updateMap(char view[][]) {
         int row, col, tileX, tileY;
         char tileView;
@@ -134,9 +145,9 @@ public class State {
                 tileView = Character.toLowerCase(view[i][j]);
 
                 if (i == 2 && j == 2) {
-                    // If players position has not been set before, the player must be on the start tile
-                    // so set that tile to a "land" tile. Otherwise do nothing, as the view does not contain
-                    // the players position
+                    /* If players position has not been set before, the player must be on the start tile
+                     * so set that tile to a "land" tile. Otherwise do nothing, as the view does not contain
+                     * the players position */
                     if (getTile(tileX, tileY) == null) {
                         setTile(' ', ' ', tileX, tileY);
                     }
@@ -156,6 +167,7 @@ public class State {
         }
     }
 
+    /* Update the state with the consequences of the next action that is performed */
     protected void updateState(char action) {
         Tile currentTile = getTile(posX, posY);
         Position nextPos = getNextPos();
@@ -166,7 +178,11 @@ public class State {
 
         // Update agents world state
         switch (action) {
+
+            // Moving forward
             case 'f':
+
+                // Update agent position, depending on what is in front of it
                 switch (nextTile.getType()) {
                     case '*':
                     case '-':
@@ -186,6 +202,8 @@ public class State {
                         posY = nextY;
                         break;
                 }
+
+                // If the next tile has an item on it, add it to the inventory
                 switch (nextTile.getItem()) {
                     case 'a':
                         hasAxe = true;
@@ -206,12 +224,18 @@ public class State {
                         break;
                 }
                 break;
+
+            // Moving left
             case 'l':
                 direction = (direction + 1) % 4;
                 break;
+
+            // Moving right
             case 'r':
                 direction = (direction + 3) % 4;
                 break;
+
+            // Chopping down a tree
             case 'c':
                 if (nextTile.getType() == 't' && hasAxe) {
                     hasRaft = true;
@@ -220,12 +244,16 @@ public class State {
                     nextTile.setType(' ');
                 }
                 break;
+
+            // Unlocking a door
             case 'u':
                 if (nextTile.getType() == '-' && hasKey) {
                     doorsOpened.add(nextTile);
                     nextTile.setType(' ');
                 }
                 break;
+
+            // Blowing up a tile
             case 'b':
                 if (hasDynamite) {
                     switch (nextTile.getType()) {
@@ -245,6 +273,11 @@ public class State {
         }
     }
 
+    /* Print the map. Will only print lines that have discovered tiles in them. Legend:
+     * ?: Unseen tile
+     * S: Start position
+     * t: tree
+     * All other tiles as in the game host */
     protected void printMap() {
         char ch = ' ';
         char[] line = new char[164];
@@ -303,6 +336,7 @@ public class State {
                 0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160);
     }
 
+    /* Print information about the agents state that is not represented in the map */
     protected void printState() {
         System.out.println("Raft: " + hasRaft + "  Axe: " + hasAxe + "  Key: " + hasKey + "  Dynamite: " + dynamites + "  Treasure: " + hasTreasure);
         System.out.println("Known treasures: " + knownTreasures.toString());
@@ -310,7 +344,11 @@ public class State {
         System.out.println("Known trees: " + knownTrees.toString());
     }
 
+    /* Compares a state to this state, and returns true if they both represent the same game state */
     protected boolean sameState(State state) {
+
+        /* Compare doorsOpened, treesChopped and tileBlownUp (the changes to the map) instead of the whole map,
+         * as that is very costly. */
         return this.posX == state.posX &&
                 this.posY == state.posY &&
                 this.dynamites == state.dynamites &&
@@ -323,9 +361,10 @@ public class State {
                 sameChangedTiles(this.doorsOpened, state.doorsOpened) &&
                 sameChangedTiles(this.treesChopped, state.treesChopped) &&
                 sameChangedTiles(this.tilesBlownUp, state.tilesBlownUp);
-        //TODO: Also check knownTreasures and knownItems
+        //TODO: Also check knownTreasures and knownItems?
     }
 
+    /* Do a deep copy of the map, that is, copy each individual tile to a new tile object.  */
     protected Tile[][] deepCopyMap() {
         Tile[][] newMap = new Tile[mapSize][mapSize];
         Tile currentTile;
@@ -345,12 +384,17 @@ public class State {
         return newMap;
     }
 
+    /* Compare the map of the current state object to another map, and return true if they are identical */
     protected boolean sameMap(State state) {
         for (int i = 0; i < mapSize; i++) {
             for (int j = 0; j < mapSize; j++) {
+
+                // If one tile is null, and the other is not, the maps are not the same
                 if (this.map[i][j] == null && state.map[i][j] != null || this.map[i][j] != null && state.map[i][j] == null) {
                     return false;
-                } else if (this.map[i][j] != null && state.map[i][j] != null && this.map[i][j].equals(state.map[i][j])) {
+                }
+                // If neither tile is null, compare them, and return false if they are not the same
+                else if (this.map[i][j] != null && state.map[i][j] != null && this.map[i][j].equals(state.map[i][j])) {
                     return false;
                 }
             }
@@ -358,10 +402,8 @@ public class State {
         return true;
     }
 
+    /* Removes an object from the known items/treasures/trees, because the agent has picked it up */
     private void pickupObject(Tile objectTile) {
-        // Remove an object from the known items or treasures, because
-        // the agent has moved to that tile and picked it up
-
         LinkedList<Tile> knownObjects = new LinkedList<>();
         Tile tile;
 
@@ -397,10 +439,8 @@ public class State {
         throw new RuntimeException("Couldn't find the object that was supposed to be removed from known objects");
     }
 
+    /* Add a new object to the lists of known items/treasures/trees, if it is not already known */
     private void discoverObject(Tile objectTile) {
-        // Add a new object to the lists of known items and treasures,
-        // if it is not already known
-
         LinkedList<Tile> knownObjects = new LinkedList<>();
         Tile tile;
 
@@ -525,6 +565,7 @@ public class State {
     }
 }
 
+/* Helper class to be able to return two values x and y from a function */
 class Position {
     private int x, y;
 
