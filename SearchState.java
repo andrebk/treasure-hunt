@@ -208,6 +208,8 @@ public class SearchState extends State implements Comparable<SearchState> {
 
             // Cost of using dynamite. Discourage blowing up tiles that can be removed using other tools
             case 'b':
+
+                // Discourage blowing up tiles that can be removed in other ways
                 switch (nextTile.getType()) {
                     case '*':
                         this.cost += 15;
@@ -217,6 +219,8 @@ public class SearchState extends State implements Comparable<SearchState> {
                         this.cost += 20;
 
                 }
+
+                // Discourage blowing up tiles from water, as this can lead to not being able to get off an island
                 if (currentTile.getType() == '~') {
                     this.cost += 5;
                 }
