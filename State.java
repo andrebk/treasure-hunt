@@ -456,30 +456,24 @@ public class State {
         result = prime * result + posY;
 
         if (doorsOpened != null) {
-            int tempResult = 0;
-            for (Tile tile : doorsOpened) {
-                tempResult += tile.getX();
-                tempResult += tile.getY();
-            }
-            result = prime * result + tempResult;
+            result = hashTileList(result, prime, doorsOpened);
         }
 
         if (treesChopped != null) {
-            int tempResult = 0;
-            for (Tile tile : treesChopped) {
-                tempResult += tile.getX();
-                tempResult += tile.getY();
-            }
-            result = prime * result + tempResult;
+            result = hashTileList(result, prime, treesChopped);
         }
 
         if (tilesBlownUp != null) {
-            int tempResult = 0;
-            for (Tile tile : tilesBlownUp) {
-                tempResult += tile.getX();
-                tempResult += tile.getY();
-            }
-            result = prime * result + tempResult;
+            result = hashTileList(result, prime, tilesBlownUp);
+        }
+        return result;
+    }
+
+    /* Helper function for hashing a linked list of tiles */
+    private int hashTileList(int result, int prime, LinkedList<Tile> list) {
+        for (Tile tile : list) {
+            result = prime * result + tile.getX();
+            result = prime * result + tile.getY();
         }
         return result;
     }
