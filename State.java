@@ -51,8 +51,7 @@ public class State {
             map[y][x].setType(type);
         }
     }
-    
-    
+
 
     /* Get the position of the tile in front of the agent */
     public Position getNextPos() {
@@ -384,24 +383,6 @@ public class State {
         return newMap;
     }
 
-    /* Compare the map of the current state object to another map, and return true if they are identical */
-    protected boolean sameMap(State state) {
-        for (int i = 0; i < mapSize; i++) {
-            for (int j = 0; j < mapSize; j++) {
-
-                // If one tile is null, and the other is not, the maps are not the same
-                if (this.map[i][j] == null && state.map[i][j] != null || this.map[i][j] != null && state.map[i][j] == null) {
-                    return false;
-                }
-                // If neither tile is null, compare them, and return false if they are not the same
-                else if (this.map[i][j] != null && state.map[i][j] != null && this.map[i][j].equals(state.map[i][j])) {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-
     /* Removes an object from the known items/treasures/trees, because the agent has picked it up */
     private void pickupObject(Tile objectTile) {
         LinkedList<Tile> knownObjects = new LinkedList<>();
@@ -473,94 +454,94 @@ public class State {
     }
 
     @Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + direction;
-		result = prime * result + dynamites;
-		result = prime * result + (hasAxe ? 1231 : 1237);
-		result = prime * result + (hasDynamite ? 1231 : 1237);
-		result = prime * result + (hasKey ? 1231 : 1237);
-		result = prime * result + (hasRaft ? 1231 : 1237);
-		result = prime * result + (hasTreasure ? 1231 : 1237);
-		result = prime * result + posX;
-		result = prime * result + posY;
-		
-		if(doorsOpened != null){
-			int tempResult = 0;
-			for(Tile tile : doorsOpened){
-				tempResult += tile.getX();
-				tempResult += tile.getY();
-			}		
-			result = prime * result + tempResult;
-		}
-		
-		if(treesChopped != null){
-			int tempResult = 0;
-			for(Tile tile : treesChopped){
-				tempResult += tile.getX();
-				tempResult += tile.getY();
-			}		
-			result = prime * result + tempResult;
-		}
-		
-		if(tilesBlownUp != null){
-			int tempResult = 0;
-			for(Tile tile : tilesBlownUp){
-				tempResult += tile.getX();
-				tempResult += tile.getY();
-			}		
-			result = prime * result + tempResult;
-		}
-		return result;
-	}
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + direction;
+        result = prime * result + dynamites;
+        result = prime * result + (hasAxe ? 1231 : 1237);
+        result = prime * result + (hasDynamite ? 1231 : 1237);
+        result = prime * result + (hasKey ? 1231 : 1237);
+        result = prime * result + (hasRaft ? 1231 : 1237);
+        result = prime * result + (hasTreasure ? 1231 : 1237);
+        result = prime * result + posX;
+        result = prime * result + posY;
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		State other = (State) obj;
-		if (direction != other.direction)
-			return false;
-		if (dynamites != other.dynamites)
-			return false;
-		if (hasAxe != other.hasAxe)
-			return false;
-		if (hasDynamite != other.hasDynamite)
-			return false;
-		if (hasKey != other.hasKey)
-			return false;
-		if (hasRaft != other.hasRaft)
-			return false;
-		if (hasTreasure != other.hasTreasure)
-			return false;
-		if (!Arrays.deepEquals(map, other.map))
-			return false;
-		if (posX != other.posX)
-			return false;
-		if (posY != other.posY)
-			return false;
-		if (tilesBlownUp.size() != other.tilesBlownUp.size())
-			return false;
-		if (!tilesBlownUp.containsAll(other.tilesBlownUp))
-			return false;
-		if (treesChopped.size() != other.treesChopped.size())
-			return false;
-		if (!treesChopped.containsAll(other.treesChopped))
-			return false;
-		if (doorsOpened.size() != other.doorsOpened.size())
-			return false;
-		if (!doorsOpened.containsAll(other.doorsOpened))
-			return false;
-		
-		return true;
-	}
+        if (doorsOpened != null) {
+            int tempResult = 0;
+            for (Tile tile : doorsOpened) {
+                tempResult += tile.getX();
+                tempResult += tile.getY();
+            }
+            result = prime * result + tempResult;
+        }
 
-	private boolean sameChangedTiles(LinkedList<Tile> list1, LinkedList<Tile> list2) {
+        if (treesChopped != null) {
+            int tempResult = 0;
+            for (Tile tile : treesChopped) {
+                tempResult += tile.getX();
+                tempResult += tile.getY();
+            }
+            result = prime * result + tempResult;
+        }
+
+        if (tilesBlownUp != null) {
+            int tempResult = 0;
+            for (Tile tile : tilesBlownUp) {
+                tempResult += tile.getX();
+                tempResult += tile.getY();
+            }
+            result = prime * result + tempResult;
+        }
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        State other = (State) obj;
+        if (direction != other.direction)
+            return false;
+        if (dynamites != other.dynamites)
+            return false;
+        if (hasAxe != other.hasAxe)
+            return false;
+        if (hasDynamite != other.hasDynamite)
+            return false;
+        if (hasKey != other.hasKey)
+            return false;
+        if (hasRaft != other.hasRaft)
+            return false;
+        if (hasTreasure != other.hasTreasure)
+            return false;
+        if (!Arrays.deepEquals(map, other.map))
+            return false;
+        if (posX != other.posX)
+            return false;
+        if (posY != other.posY)
+            return false;
+        if (tilesBlownUp.size() != other.tilesBlownUp.size())
+            return false;
+        if (!tilesBlownUp.containsAll(other.tilesBlownUp))
+            return false;
+        if (treesChopped.size() != other.treesChopped.size())
+            return false;
+        if (!treesChopped.containsAll(other.treesChopped))
+            return false;
+        if (doorsOpened.size() != other.doorsOpened.size())
+            return false;
+        if (!doorsOpened.containsAll(other.doorsOpened))
+            return false;
+
+        return true;
+    }
+
+    private boolean sameChangedTiles(LinkedList<Tile> list1, LinkedList<Tile> list2) {
         return list1.size() == list2.size() && list1.containsAll(list2);
     }
 }

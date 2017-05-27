@@ -8,7 +8,6 @@
 import java.io.*;
 import java.net.*;
 import java.util.LinkedList;
-import java.util.Queue;
 
 public class Agent extends State {
 
@@ -113,78 +112,28 @@ public class Agent extends State {
 
         /* If the agent knows the location of treasure, it tries to plan a path to it */
         if (!knownTreasures.isEmpty()) {
+            try {
+                System.out.println("Know where treasure is, planning path to it...");
+                startTime = System.nanoTime();
+                plan = Search.AStar(this, knownTreasures, SearchMode.FREE);
 
-            /* First it tries to plan a path using the hypothetical search mode. This mode allows using items
-             * the agent doesn't have, and is used to evaluate if there exists a feasible path to the treasure */
-//            try {
-//                System.out.println("Know where treasure is, planning hypothetical path to it...");
-//                startTime = System.nanoTime();
-//                plan = Search.AStar(this, knownTreasures, SearchMode.HYPOTHETICAL);
-//
-//                stopTime = System.nanoTime();
-//                duration = (stopTime - startTime) / 1000000;
-//                System.out.println("Found hypothetical path to treasure in " + duration + " ms");
-//            } catch (NoPathFoundException e) {
-//                stopTime = System.nanoTime();
-//                duration = (stopTime - startTime) / 1000000;
-//                System.out.println("Could not find hypothetical path to treasure [" + duration + " ms]: " + e.getMessage());
-//            }
-//
-//            // If the hypothetical search produces a plan that can be executed, the agent will use that plan
-//            if (hasViablePlan()) {
-//                System.out.println("Hypothetical plan to treasure is viable, executing " + plan.peekFirst());
-//                action = plan.removeFirst();
-//                updateState(action);
-//                return action;
-//            }
-                
-                try {
-                    System.out.println("Know where treasure is, planning path to it...");
-                    startTime = System.nanoTime();
-                    plan = Search.AStar(this, knownTreasures, SearchMode.FREE);
+                stopTime = System.nanoTime();
+                duration = (stopTime - startTime) / 1000000;
+                System.out.println("Found path to treasure in " + duration + " ms, executing: " + plan.peekFirst());
 
-                    stopTime = System.nanoTime();
-                    duration = (stopTime - startTime) / 1000000;
-                    System.out.println("Found path to treasure in " + duration + " ms, executing: " + plan.peekFirst());
+                action = plan.removeFirst();
+                updateState(action);
+                return action;
+            } catch (NoPathFoundException e) {
+                stopTime = System.nanoTime();
+                duration = (stopTime - startTime) / 1000000;
+                System.out.println("Could not find path to treasure [" + duration + " ms]: " + e.getMessage());
+            }
 
-                    action = plan.removeFirst();
-                    updateState(action);
-                    return action;
-                } catch (NoPathFoundException e) {
-                    stopTime = System.nanoTime();
-                    duration = (stopTime - startTime) / 1000000;
-                    System.out.println("Could not find path to treasure [" + duration + " ms]: " + e.getMessage());
-                }
-                
         }
 
         /* If the agent knows the location of any items (keys, dynamite or axes), it tries to plan a path to one */
         if (!knownItems.isEmpty()) {
-
-            // First it tries to search using the hypothetical sear mode, to see if the items can be reached
-            try {
-                System.out.println("Know where item(s) are, planning hypothetical path to one...");
-                startTime = System.nanoTime();
-                plan = Search.AStar(this, knownItems, SearchMode.HYPOTHETICAL);
-
-                stopTime = System.nanoTime();
-                duration = (stopTime - startTime) / 1000000;
-                System.out.println("Found hypothetical path to item in " + duration + " ms");
-            } catch (NoPathFoundException e) {
-                stopTime = System.nanoTime();
-                duration = (stopTime - startTime) / 1000000;
-                System.out.println("Could not find hypothetical path to item [" + duration + " ms]: " + e.getMessage());
-            }
-
-            // If the hypothetical search produces a plan that can be executed, the agent will use that plan
-            if (hasViablePlan()) {
-                System.out.println("Hypothetical plan to item is viable, executing " + plan.peekFirst());
-                action = plan.removeFirst();
-                updateState(action);
-                return action;
-            }
-
-            /*
             try {
                 System.out.println("Know where item(s) are, planning path to one...");
                 startTime = System.nanoTime();
@@ -202,7 +151,6 @@ public class Agent extends State {
                 duration = (stopTime - startTime) / 1000000;
                 System.out.println("Could not find path to item [" + duration + " ms]: " + e.getMessage());
             }
-            */
         }
 
         /* If none of the previous searches produced viable plans, more exploration is probably necessary.
@@ -257,26 +205,6 @@ public class Agent extends State {
         }
 
         return 0;
-    }
-
-    /* Checks if the plan the agent has found can be executed with the items it currently possesses */
-    private boolean hasViablePlan() {
-        int chops = 0;
-        int opens = 0;
-        int explosions = 0;
-        for (char action : plan) {
-            switch (action) {
-                case 'u':
-                    opens++;
-                    break;
-                case 'c':
-                    chops++;
-                    break;
-                case 'b':
-                    explosions++;
-            }
-        }
-        return (chops > 0 == hasAxe) && (opens > 0 == hasKey) && explosions <= dynamites;
     }
 
     /* Print the agents current view. Part of the provided class */

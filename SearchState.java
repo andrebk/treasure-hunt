@@ -51,14 +51,6 @@ public class SearchState extends State implements Comparable<SearchState> {
         this.mode = state.mode;
         prevStates = shallowCopyLL(state.prevStates);
         prevStates.addLast(state);
-
-        // Make sure the agent has all items in hypothetical search mode
-        if (mode == SearchMode.HYPOTHETICAL) {
-            hasAxe = true;
-            hasKey = true;
-            hasDynamite = true;
-            dynamites = 1;
-        }
         // Doesn't set cost, heuristic or prevAction
     }
 
@@ -144,11 +136,6 @@ public class SearchState extends State implements Comparable<SearchState> {
         }
     }
 
-    /* Get the action that was taken to reach this state from the previous state */
-    public char getPrevAction() {
-        return prevAction;
-    }
-
     /* Gets the path cost of moving to this state */
     public int getCost() {
         return cost;
@@ -202,9 +189,9 @@ public class SearchState extends State implements Comparable<SearchState> {
                 // Discourage chopping trees if agent already has a raft, and there are few trees
                 if (hasRaft) {
                     if (knownTrees.size() > 0) {
-                        this.cost += Math.ceil(10 / knownTrees.size());
+                        this.cost += Math.max(12 / knownTrees.size(), 1);
                     } else {
-                        this.cost += 10;
+                        this.cost += 12;
                     }
                 }
 
@@ -265,11 +252,6 @@ public class SearchState extends State implements Comparable<SearchState> {
         return getCost() + getHeuristic();
     }
 
-    /* Check if the agent is on a given tile */
-    public boolean samePosition(Tile tile) {
-        return this.posX == tile.getX() && this.posY == tile.getY();
-    }
-
     /* Check if the agent can move forward from this state */
     private boolean canMoveForward(Tile nextTile) {
         //TODO: Bring these if statement into the return statements?
@@ -284,7 +266,6 @@ public class SearchState extends State implements Comparable<SearchState> {
                 return currentTile.getType() == nextTile.getType();
             case MODERATE:
             case FREE:
-            case HYPOTHETICAL:
 
                 // Can always move forward to land, but can only go into water if agent has a raft
                 switch (nextTile.getType()) {
@@ -313,7 +294,6 @@ public class SearchState extends State implements Comparable<SearchState> {
                 return false;
             case MODERATE:
             case FREE:
-            case HYPOTHETICAL:
                 return nextTile.getType() == 't' && hasAxe;
             default:
                 return false;
@@ -337,7 +317,6 @@ public class SearchState extends State implements Comparable<SearchState> {
                 // Never use dynamite when in safe or moderate search mode
                 return false;
             case FREE:
-            case HYPOTHETICAL:
 
                 // Can use dynamite if the tile in front of the agent can be blown up, and it has dynamite in inventory
                 switch (nextTile.getType()) {

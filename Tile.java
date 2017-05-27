@@ -55,16 +55,6 @@ public class Tile {
         }
     }
 
-    /* Returns whether or not this tile has been visited by the agent */
-    public boolean getVisited() {
-        return this.visited;
-    }
-
-    /* Sets this tile to have been visited by the agent */
-    public void setVisited() {
-        this.visited = true;
-    }
-
     /* Get the item located on this tile */
     public char getItem() {
         return this.item;
