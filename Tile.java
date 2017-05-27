@@ -32,8 +32,6 @@ public class Tile {
     /* Set the environment type of this tile */
     void setType(char type) throws InvalidTypeException {
         type = Character.toLowerCase(type);
-        //TODO: Do we need an "unknown"/unexplored type as well? To decide if the tile should be explored?
-        // If unexplored type is implemented, make that the default in the constructor.
         switch (type) {
             case ' ':
             case 'a':
@@ -69,13 +67,8 @@ public class Tile {
             case '$':
                 this.item = item;
                 break;
-            case '0':
-                this.item = '0';
-                break;
             default:
                 this.item = '0';
-                //TODO: Throw exception?
-                break;
         }
     }
 
