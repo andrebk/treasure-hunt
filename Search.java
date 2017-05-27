@@ -31,10 +31,9 @@ public class Search {
     private static LinkedList<Character> findPath(Agent agent, LinkedList<Tile> targets, String algorithm, SearchMode mode) throws NoPathFoundException {
         SearchState current;
         LinkedList<SearchState> newStates;
-        boolean inOpen = false;
 
         PriorityQueue<SearchState> open = new PriorityQueue<>();
-        HashMap<Integer,SearchState> openH = new HashMap<Integer,SearchState>();
+        HashMap<Integer, SearchState> openH = new HashMap<>();
         HashSet<SearchState> closed = new HashSet<>();
 
         // Add the starting state to the set of open states
@@ -79,38 +78,29 @@ public class Search {
                     continue;
                 }
                 int hashCode = newState.hashCode();
-                
-                if(openH.containsKey(hashCode)){
-                	if(newState.getFCost() < openH.get(hashCode).getFCost()){
-                		openH.remove(hashCode);
-                		open.add(newState);
-                		openH.put(hashCode, newState);
-                	}
-                }
-                else if(!openH.containsKey(hashCode)){
-                	open.add(newState);
-                }
 
-//                // If state is in open, check if new path to it is better, and if so update it
-//                Iterator<SearchState> it = open.iterator();
-//                while (it.hasNext()) {
-//                    inOpen = false;
-//                    SearchState state = it.next();
-//                    if (state.sameState(newState)) {
-//                        inOpen = true;
-//                        if (newState.getFCost() < state.getFCost()) {
-//                            it.remove();
-//                            open.add(newState);
-//                            break;
-//                        }
-//
-//                    }
-//                }
-//
-//                // Add states that have not been seen before to the open set
-//                if (!inOpen || open.isEmpty()) {
-//                    open.add(newState);
-//                }
+                /* Check if the new state is in the open hash map, so that the costly iteration through the open
+                 * priority queue only needs to be done when we know there is something that needs to be removed */
+                if (openH.containsKey(hashCode)) {
+                    if (newState.getFCost() < openH.get(hashCode).getFCost()) {
+                        openH.remove(hashCode);
+                        openH.put(hashCode, newState);
+
+                        Iterator<SearchState> it = open.iterator();
+                        while (it.hasNext()) {
+                            SearchState state = it.next();
+                            if (state.sameState(newState)) {
+                                it.remove();
+                                open.add(newState);
+                                break;
+                            }
+                        }
+
+                    }
+                } else if (!openH.containsKey(hashCode)) {
+                    open.add(newState);
+                    openH.put(hashCode, newState);
+                }
             }
         }
 
