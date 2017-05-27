@@ -1,4 +1,3 @@
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.ListIterator;
 
@@ -7,41 +6,41 @@ import java.util.ListIterator;
  * Both the Agent and SearchState classes extend State, as they both need to keep track of the state. */
 public class State {
     private final static int mapSize = 164;
-    protected final static int start = mapSize / 2;
-    protected Tile[][] map = new Tile[mapSize][mapSize];
+    final static int start = mapSize / 2;
+    Tile[][] map = new Tile[mapSize][mapSize];
 
     LinkedList<Tile> knownTreasures = new LinkedList<>();
     LinkedList<Tile> knownItems = new LinkedList<>();
     LinkedList<Tile> knownTrees = new LinkedList<>();
 
-    protected int posX, posY;
+    int posX, posY;
 
-    protected int dynamites = 0;
-    protected boolean hasDynamite = false;
-    protected boolean hasAxe = false;
-    protected boolean hasKey = false;
-    protected boolean hasRaft = false;
-    protected boolean hasTreasure = false;
+    int dynamites = 0;
+    boolean hasDynamite = false;
+    boolean hasAxe = false;
+    boolean hasKey = false;
+    boolean hasRaft = false;
+    boolean hasTreasure = false;
 
-    protected LinkedList<Tile> doorsOpened = new LinkedList<>();
-    protected LinkedList<Tile> treesChopped = new LinkedList<>();
-    protected LinkedList<Tile> tilesBlownUp = new LinkedList<>();
+    LinkedList<Tile> doorsOpened = new LinkedList<>();
+    LinkedList<Tile> treesChopped = new LinkedList<>();
+    LinkedList<Tile> tilesBlownUp = new LinkedList<>();
 
-    public final static int EAST = 0;
-    public final static int NORTH = 1;
-    public final static int WEST = 2;
-    public final static int SOUTH = 3;
+    private final static int EAST = 0;
+    private final static int NORTH = 1;
+    private final static int WEST = 2;
+    private final static int SOUTH = 3;
 
-    protected int direction = NORTH;
+    int direction = NORTH;
 
 
     /* Get the tile at the given position from the map */
-    public Tile getTile(int x, int y) {
+    Tile getTile(int x, int y) {
         return map[y][x];
     }
 
     /* Set the tile at the given position to be with given type and item */
-    protected void setTile(char type, char item, int x, int y) {
+    private void setTile(char type, char item, int x, int y) {
         if (map[y][x] == null) {
             // Tile doesn't exist, because it hasn't been seen before. Create it
             map[y][x] = new Tile(type, item, x, y);
@@ -54,7 +53,7 @@ public class State {
 
 
     /* Get the position of the tile in front of the agent */
-    public Position getNextPos() {
+    Position getNextPos() {
         int deltaX = 0;
         int deltaY = 0;
         int nextX, nextY;
@@ -80,18 +79,13 @@ public class State {
         return new Position(nextX, nextY);
     }
 
-    /* Helper function to give public access to private variable hasRaft */
-    public boolean hasRaft() {
-        return this.hasRaft;
-    }
-
     /* Get the tile at the agents current position */
-    public Tile getTileAtPos() {
+    Tile getTileAtPos() {
         return getTile(this.posX, this.posY);
     }
 
     /* Calculate the number of unseen tiles that can be seen from the given coordinates */
-    protected int numUnseenTiles(int x, int y) {
+    private int numUnseenTiles(int x, int y) {
         int unSeen = 0;
         int i, j;
         for (i = -2; i <= 2; i++) {
@@ -105,12 +99,12 @@ public class State {
     }
 
     /* Get the number of unseen tiles that can be seen from the current coordinates */
-    protected int numUnseenTiles() {
+    int numUnseenTiles() {
         return numUnseenTiles(this.posX, this.posY);
     }
 
     /* Update the map with the view provided by the game host */
-    protected void updateMap(char view[][]) {
+    void updateMap(char view[][]) {
         int row, col, tileX, tileY;
         char tileView;
 
@@ -167,7 +161,7 @@ public class State {
     }
 
     /* Update the state with the consequences of the next action that is performed */
-    protected void updateState(char action) {
+    void updateState(char action) {
         Tile currentTile = getTile(posX, posY);
         Position nextPos = getNextPos();
 
@@ -277,7 +271,7 @@ public class State {
      * S: Start position
      * t: tree
      * All other tiles as in the game host */
-    protected void printMap() {
+    void printMap() {
         char ch = ' ';
         char[] line = new char[164];
         System.out.println();
@@ -336,7 +330,7 @@ public class State {
     }
 
     /* Print information about the agents state that is not represented in the map */
-    protected void printState() {
+    void printState() {
         System.out.println("Raft: " + hasRaft + "  Axe: " + hasAxe + "  Key: " + hasKey + "  Dynamite: " + dynamites + "  Treasure: " + hasTreasure);
         System.out.println("Known treasures: " + knownTreasures.toString());
         System.out.println("Known items: " + knownItems.toString());
@@ -344,7 +338,7 @@ public class State {
     }
 
     /* Compares a state to this state, and returns true if they both represent the same game state */
-    protected boolean sameState(State state) {
+    boolean sameState(State state) {
 
         /* Compare doorsOpened, treesChopped and tileBlownUp (the changes to the map) instead of the whole map,
          * as that is very costly. */
@@ -364,7 +358,7 @@ public class State {
     }
 
     /* Do a deep copy of the map, that is, copy each individual tile to a new tile object.  */
-    protected Tile[][] deepCopyMap() {
+    Tile[][] deepCopyMap() {
         Tile[][] newMap = new Tile[mapSize][mapSize];
         Tile currentTile;
 
@@ -385,23 +379,11 @@ public class State {
 
     /* Removes an object from the known items/treasures/trees, because the agent has picked it up */
     private void pickupObject(Tile objectTile) {
-        LinkedList<Tile> knownObjects = new LinkedList<>();
+        LinkedList<Tile> knownObjects;
         Tile tile;
 
         // Find out which type of object it is
-        switch (objectTile.getItem()) {
-            case 'a':
-            case 'k':
-            case 'd':
-                knownObjects = knownItems;
-                break;
-            case '$':
-                knownObjects = knownTreasures;
-                break;
-        }
-        if (objectTile.getType() == 't') {
-            knownObjects = knownTrees;
-        }
+        knownObjects = chooseObjectList(objectTile);
 
         // Iterate through the known objects and remove the one we picked up
         ListIterator<Tile> it = knownObjects.listIterator();
@@ -415,18 +397,34 @@ public class State {
             }
         }
 
-        // If the object was not in the list, there must be a disconnect between the known objects
-        // and the map. Let the user know.
+        /* If the object was not in the list, there must be a disconnect between the known objects
+         * and the map. Let the user know. */
         throw new RuntimeException("Couldn't find the object that was supposed to be removed from known objects");
     }
 
     /* Add a new object to the lists of known items/treasures/trees, if it is not already known */
     private void discoverObject(Tile objectTile) {
-        LinkedList<Tile> knownObjects = new LinkedList<>();
-        Tile tile;
+        LinkedList<Tile> knownObjects;
 
         // Find out which type of object it is
-        switch (objectTile.getItem()) {
+        knownObjects = chooseObjectList(objectTile);
+
+        // Check if we already know about this object
+        for (Tile tile : knownObjects) {
+            if (tile.sameTile(objectTile)) {
+                return;
+            }
+        }
+
+        // If we reach this point the object was not already known, so add it
+        knownObjects.add(objectTile);
+    }
+
+    /* Helper function to decide which type of tile has been discovered / changed */
+    private LinkedList<Tile> chooseObjectList(Tile tile) {
+        LinkedList<Tile> knownObjects = new LinkedList<>();
+
+        switch (tile.getItem()) {
             case 'a':
             case 'k':
             case 'd':
@@ -436,21 +434,11 @@ public class State {
                 knownObjects = knownTreasures;
                 break;
         }
-        if (objectTile.getType() == 't') {
+        if (tile.getType() == 't') {
             knownObjects = knownTrees;
         }
 
-        // Check if we already know about this object
-        ListIterator<Tile> it = knownObjects.listIterator();
-        while (it.hasNext()) {
-            tile = it.next();
-            if (tile.sameTile(objectTile)) {
-                return;
-            }
-        }
-
-        // If we reach this point the object was not already known, so add it
-        knownObjects.add(objectTile);
+        return knownObjects;
     }
 
     @Override
@@ -498,47 +486,18 @@ public class State {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (obj == null)
+        }
+        if (obj == null) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (getClass() != obj.getClass()) {
             return false;
-        State other = (State) obj;
-        if (direction != other.direction)
-            return false;
-        if (dynamites != other.dynamites)
-            return false;
-        if (hasAxe != other.hasAxe)
-            return false;
-        if (hasDynamite != other.hasDynamite)
-            return false;
-        if (hasKey != other.hasKey)
-            return false;
-        if (hasRaft != other.hasRaft)
-            return false;
-        if (hasTreasure != other.hasTreasure)
-            return false;
-        if (!Arrays.deepEquals(map, other.map))
-            return false;
-        if (posX != other.posX)
-            return false;
-        if (posY != other.posY)
-            return false;
-        if (tilesBlownUp.size() != other.tilesBlownUp.size())
-            return false;
-        if (!tilesBlownUp.containsAll(other.tilesBlownUp))
-            return false;
-        if (treesChopped.size() != other.treesChopped.size())
-            return false;
-        if (!treesChopped.containsAll(other.treesChopped))
-            return false;
-        if (doorsOpened.size() != other.doorsOpened.size())
-            return false;
-        if (!doorsOpened.containsAll(other.doorsOpened))
-            return false;
+        }
 
-        return true;
+        State other = (State) obj;
+        return sameState(other);
     }
 
     private boolean sameChangedTiles(LinkedList<Tile> list1, LinkedList<Tile> list2) {
@@ -555,11 +514,11 @@ class Position {
         this.y = y;
     }
 
-    public int getX() {
+    int getX() {
         return this.x;
     }
 
-    public int getY() {
+    int getY() {
         return this.y;
     }
 }

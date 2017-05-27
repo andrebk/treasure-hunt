@@ -1,4 +1,4 @@
-/*********************************************
+/*
  *  Agent.java 
  *  Sample Agent for Text-Based Adventure Game
  *  COMP3411 Artificial Intelligence
@@ -11,7 +11,7 @@ import java.util.LinkedList;
 
 public class Agent extends State {
 
-    LinkedList<Character> plan = new LinkedList<>();
+    private LinkedList<Character> plan = new LinkedList<>();
 
     /* Default constructor. Initializes position of the agent to the center of the map */
     Agent() {
@@ -47,7 +47,7 @@ public class Agent extends State {
     /* Finds the next action to be performed. The agent will either return the next step in a preexisting plan,
      * or try to plan a route to one of it's (sub)goals.
      */
-    public char get_action(char view[][]) {
+    char get_action(char view[][]) {
         char action;
         long startTime = System.nanoTime(), stopTime, duration;
 
@@ -233,7 +233,7 @@ public class Agent extends State {
         Socket socket = null;
         Agent agent = new Agent();
         char view[][] = new char[5][5];
-        char action = 'F';
+        char action;
         int port;
         int ch;
         int i, j;
@@ -278,6 +278,7 @@ public class Agent extends State {
             try {
                 socket.close();
             } catch (IOException e) {
+                System.out.println("Failed to close socket");
             }
         }
     }

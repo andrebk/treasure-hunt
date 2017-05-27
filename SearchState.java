@@ -35,7 +35,7 @@ public class SearchState extends State implements Comparable<SearchState> {
 
     /* Constructor for creating the initial SearchState from the current state of the agent */
     SearchState(Agent agent, LinkedList<Tile> targets, SearchMode mode) {
-        this((State) agent);
+        this(agent); // Uses SearchState(State state)
         this.targets = targets;
         this.mode = mode;
         prevStates = new LinkedList<>();
@@ -55,7 +55,7 @@ public class SearchState extends State implements Comparable<SearchState> {
     }
 
     /* Constructor for creating a SearchState that expands a previous state by doing an action */
-    SearchState(SearchState state, char action) {
+    private SearchState(SearchState state, char action) {
         this(state);
 
         // If map is about to change, do a deep copy so as to not mess up for other states.
@@ -80,7 +80,7 @@ public class SearchState extends State implements Comparable<SearchState> {
     }
 
     /* Expands this state by creating all the new states that can be reached from it */
-    public LinkedList<SearchState> expandState() {
+    LinkedList<SearchState> expandState() {
         LinkedList<SearchState> newStates = new LinkedList<>();
         Position nextPos = getNextPos();
         Tile nextTile = getTile(nextPos.getX(), nextPos.getY());
@@ -111,7 +111,7 @@ public class SearchState extends State implements Comparable<SearchState> {
 
     /* Goes through a List of SearchStates and removes all states that have a state S in their prevStates list
      * that satisfies state.sameState(S) */
-    public static void removeRepeatStates(LinkedList<SearchState> states) {
+    private static void removeRepeatStates(LinkedList<SearchState> states) {
         SearchState state;
         ListIterator<SearchState> it = states.listIterator();
 
@@ -124,7 +124,7 @@ public class SearchState extends State implements Comparable<SearchState> {
     }
 
     /* Find the actions necessary to reach this state from the start state */
-    public LinkedList<Character> getPathHere() {
+    LinkedList<Character> getPathHere() {
         LinkedList<Character> path;
 
         if (prevAction != Character.MIN_VALUE) {
@@ -137,7 +137,7 @@ public class SearchState extends State implements Comparable<SearchState> {
     }
 
     /* Gets the path cost of moving to this state */
-    public int getCost() {
+    private int getCost() {
         return cost;
     }
 
@@ -147,7 +147,7 @@ public class SearchState extends State implements Comparable<SearchState> {
     }
 
     /* Sets the cost of going to this state, dependent on the action that was taken to reach it */
-    public void increaseCost(char action) {
+    private void increaseCost(char action) {
         //TODO: Improve costs. Bomb cost dependent on number of bombs?
         Tile currentTile = getTileAtPos();
         Tile nextTile = getTile(getNextPos().getX(), getNextPos().getY());
@@ -225,13 +225,13 @@ public class SearchState extends State implements Comparable<SearchState> {
     }
 
     /* Get the heuristic value of this state, that is the approximate cost of reaching the target */
-    public int getHeuristic() {
+    private int getHeuristic() {
         return heuristic;
     }
 
     /* Calculate the heuristic for this state. Uses the Manhattan distance to the closes target.
      * If there are no targets, set the heuristic to zero. This makes uniform cost search possible with A* algorithm */
-    public void setHeuristic() {
+    private void setHeuristic() {
         int newHeuristic;
 
         if (targets == null || targets.isEmpty()) {
@@ -248,7 +248,7 @@ public class SearchState extends State implements Comparable<SearchState> {
     }
 
     /* Get the estimate total cost of reaching the goal from the start state */
-    public int getFCost() {
+    int getFCost() {
         return getCost() + getHeuristic();
     }
 

@@ -5,7 +5,6 @@ public class Tile {
     private char item = '0';
     private int x = -1;
     private int y = -1;
-    private boolean visited = false;
 
     /* Default constructor. Sets the type to an off map tile */
     Tile() {
@@ -26,12 +25,12 @@ public class Tile {
     }
 
     /* Return the environment type of this tile */
-    public char getType() {
+    char getType() {
         return type;
     }
 
     /* Set the environment type of this tile */
-    public void setType(char type) throws InvalidTypeException {
+    void setType(char type) throws InvalidTypeException {
         type = Character.toLowerCase(type);
         //TODO: Do we need an "unknown"/unexplored type as well? To decide if the tile should be explored?
         // If unexplored type is implemented, make that the default in the constructor.
@@ -56,12 +55,12 @@ public class Tile {
     }
 
     /* Get the item located on this tile */
-    public char getItem() {
+    char getItem() {
         return this.item;
     }
 
     /* Set the item located on this tile. If the item is unvalid, it will set it to no item */
-    public void setItem(char item) {
+    void setItem(char item) {
         item = Character.toLowerCase(item);
         switch (item) {
             case 'a':
@@ -81,17 +80,17 @@ public class Tile {
     }
 
     /* Get the x coordinate of this tile */
-    public int getX() {
+    int getX() {
         return this.x;
     }
 
     /* Get the y coordinate of this tile */
-    public int getY() {
+    int getY() {
         return this.y;
     }
 
     /* Compare this tile to another, and check if they are identical */
-    public boolean sameTile(Tile tile) {
+    boolean sameTile(Tile tile) {
         return this.type == tile.type &&
                 this.item == tile.item &&
                 this.x == tile.x &&

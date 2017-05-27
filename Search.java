@@ -6,10 +6,10 @@ import java.util.PriorityQueue;
 
 /* The Search class implements the A* and Uniform Cost Search search algorithms to search through the state space
  * of the game.  */
-public class Search {
+class Search {
 
     /* Search from the agents state to one of the provided targets, using the A* algorithm */
-    public static LinkedList<Character> AStar(Agent agent, LinkedList<Tile> targets, SearchMode mode) throws NoPathFoundException {
+    static LinkedList<Character> AStar(Agent agent, LinkedList<Tile> targets, SearchMode mode) throws NoPathFoundException {
 
         // If no targets where provided, don't try to search, simply return
         if (targets == null || targets.isEmpty()) {
@@ -20,7 +20,7 @@ public class Search {
     }
 
     /* Perform uniform cost search from the agents state. Considers any tile with unseen tiles around it a target */
-    public static LinkedList<Character> UCS(Agent agent, SearchMode mode) throws NoPathFoundException {
+    static LinkedList<Character> UCS(Agent agent, SearchMode mode) throws NoPathFoundException {
 
         /* Pass in an empty linked list as target. This makes SearchState set the heuristic to zero, which makes
          * A* search the same as UCS */
@@ -48,26 +48,29 @@ public class Search {
             current = open.poll();
             openH.remove(current.hashCode());
             closed.add(current);
-            //System.out.println("Current path: " + current.getPathHere().toString());
 
-            /* If we have reached a goal, return the path to it.
-             * For A* the we have reached the goal if the current position is the same as the position of a target */
-            if (algorithm.equals("AStar")) {
-                for (Tile target : targets) {
-                    if (target.getX() == current.posX && target.getY() == current.posY) {
+            /* If we have reached a goal, return the path to it. */
+            switch (algorithm) {
+
+                /* For A* the we have reached the goal if the current position is the same as the position of a target */
+                case "AStar":
+                    for (Tile target : targets) {
+                        if (target.getX() == current.posX && target.getY() == current.posY) {
+                            return current.getPathHere();
+                        }
+                    }
+                    break;
+
+                /* For UCS we have reached a goal if the current position has unseen tiles around it */
+                case "UCS":
+                    if (current.numUnseenTiles() > 0) {
                         return current.getPathHere();
                     }
-                }
+                    break;
+                default:
+                    throw new RuntimeException("Unknown search algorithm type");
             }
 
-            // For UCS we have reached a goal if the current position has unseen tiles around it
-            else if (algorithm.equals("UCS")) {
-                if (current.numUnseenTiles() > 0) {
-                    return current.getPathHere();
-                }
-            } else {
-                throw new RuntimeException("Unknown search algorithm type");
-            }
 
             // Expand the current state, and add / update the new states to open
             newStates = current.expandState();
@@ -104,7 +107,9 @@ public class Search {
             }
         }
 
-        throw new NoPathFoundException("Exhausted all possibilities");
+        throw new
+
+                NoPathFoundException("Exhausted all possibilities");
     }
 }
 
