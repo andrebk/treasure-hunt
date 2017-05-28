@@ -257,7 +257,6 @@ public class SearchState extends State implements Comparable<SearchState> {
 
     /* Check if the agent can move forward from this state */
     private boolean canMoveForward(Tile nextTile) {
-        //TODO: Bring these if statement into the return statements?
         if (nextTile == null) {
             return false;
         }

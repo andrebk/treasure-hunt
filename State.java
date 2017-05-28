@@ -440,6 +440,7 @@ public class State {
         return knownObjects;
     }
 
+    /* Calculates the hash for an object. Used to store objects in HashSet */
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -477,6 +478,7 @@ public class State {
         return result;
     }
 
+    /* Override the equals method. Needed for contains() method for e.g. linked lists */
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
