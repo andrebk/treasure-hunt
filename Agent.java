@@ -2,12 +2,12 @@
  * Briefly describe how your program works, including any algorithms and data structures employed, and explain any design decisions you made along the way.
  *
  * The agent uses A* search and uniform cost search to search through the state space for a sequence of actions that
- * will lead to a better state than currently is in. A state is described not only by the agent's position on the map,
- * but also by which items it has, what items it have been discovered, what tiles it has changed, etc. When searching for a path,
- * the search algorithm will evaluate new possible states corresponding to the actions given by its current state.
- * Thus, it is not only searching for a path in a two dimensional world, as it can
- * be in the same position, but not the same state, because of e.g. using an item. The goals the agent will try to
- * find a way to fulfill are, in prioritized order:
+ * will lead to a better state than it is currently in. A state is described not only by the agent's position on the map,
+ * but also by which items it has, what items have been discovered, what tiles it has changed, etc. When searching for a path,
+ * the search algorithm will evaluate new possible states corresponding to the possible actions given by its current state.
+ * Thus, it is not only searching for a path in a two dimensional world, as it can be in the same position, but not the
+ * same state, because of e.g. using an item. The goals the agent will try to find a way to fulfill are,
+ * in prioritized order:
  *
  * - Getting back to start, if it has the treasure
  * - Exploring, without performing actions that can't be reversed (like blowing up tiles, or using/losing the raft)
