@@ -354,7 +354,6 @@ public class State {
                 sameChangedTiles(this.doorsOpened, state.doorsOpened) &&
                 sameChangedTiles(this.treesChopped, state.treesChopped) &&
                 sameChangedTiles(this.tilesBlownUp, state.tilesBlownUp);
-        //TODO: Also check knownTreasures and knownItems?
     }
 
     /* Do a deep copy of the map, that is, copy each individual tile to a new tile object.  */

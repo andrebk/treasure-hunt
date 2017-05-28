@@ -148,7 +148,6 @@ public class SearchState extends State implements Comparable<SearchState> {
 
     /* Sets the cost of going to this state, dependent on the action that was taken to reach it */
     private void increaseCost(char action) {
-        //TODO: Improve costs. Bomb cost dependent on number of bombs?
         Tile currentTile = getTileAtPos();
         Tile nextTile = getTile(getNextPos().getX(), getNextPos().getY());
 
